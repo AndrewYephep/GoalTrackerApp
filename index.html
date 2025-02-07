@@ -1798,11 +1798,7 @@ const handleContextMenu = (e, goalId) => {
 					    ${isDueDate ? 'status-due-date' : status ? `status-${status}` : ''}`}
 					onClick={() => onDayClick(date)}
 				    >
-                    onDoubleClick={() => {
-                    if (selectedGoal && date <= luxon.DateTime.now()) {
-                      setQuickForm({ visible: true, date, isEditing: true });
-                        }
-                      }}
+                    
 					<div className="calendar-day-number">
 					    {date.toLocaleString({ day: 'numeric' })}
 					</div>
