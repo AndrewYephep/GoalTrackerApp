@@ -1599,38 +1599,51 @@ const handleDrop = async (e, targetGoalId) => {
   e.preventDefault();
   const element = e.currentTarget; // Capture element reference early
   const draggedGoalId = e.dataTransfer.getData("text/plain");
-  
+
   if (!draggedGoalId || draggedGoalId === targetGoalId) return;
-  
+
+  // Find the dragged and target goals
   const draggedGoal = goals.find(g => g.id === draggedGoalId);
   const targetGoal = goals.find(g => g.id === targetGoalId);
-  
+
+  if (!draggedGoal || !targetGoal) return;
+
+  // Create a copy of the goals array without the dragged goal
+  const goalsWithoutDragged = goals.filter(g => g.id !== draggedGoalId);
+
+  // Find the index of the target goal
+  const targetIndex = goalsWithoutDragged.findIndex(g => g.id === targetGoalId);
+
+  // Insert the dragged goal at the target position
+  const updatedGoals = [
+    ...goalsWithoutDragged.slice(0, targetIndex),
+    draggedGoal,
+    ...goalsWithoutDragged.slice(targetIndex)
+  ];
+
+  // Recalculate priorities based on position
+  const goalsWithUpdatedPriorities = updatedGoals.map((goal, index) => ({
+    ...goal,
+    priority: updatedGoals.length - index // Higher priority for earlier positions
+  }));
+
   // Create a copy of the original array for rollback
   const originalGoals = [...goals];
-  
+
   try {
     // Optimistically update UI first
-    setGoals(prev => {
-      return prev.map(goal => {
-        if (goal.id === draggedGoalId) return {...goal, priority: targetGoal.priority};
-        if (goal.id === targetGoalId) return {...goal, priority: draggedGoal.priority};
-        return goal;
-      });
-    });
-    
-    // Update backend
-    const { error: error1 } = await supabase
-      .from('goals')
-      .update({ priority: targetGoal.priority })
-      .eq('id', draggedGoalId);
-      
-    const { error: error2 } = await supabase
-      .from('goals')
-      .update({ priority: draggedGoal.priority })
-      .eq('id', targetGoalId);
+    setGoals(goalsWithUpdatedPriorities);
 
-    if (error1 || error2) throw new Error('Priority update failed');
-    
+    // Update backend using a transaction
+    const { error } = await supabase.rpc('update_goal_priorities', {
+      updates: goalsWithUpdatedPriorities.map((goal) => ({
+        id: goal.id,
+        priority: goal.priority
+      }))
+    });
+
+    if (error) throw error;
+
   } catch (err) {
     setError('Failed to update priorities - changes reverted');
     setGoals(originalGoals);
@@ -1891,6 +1904,9 @@ const daysUntilDue = () => {
               onDragStart={(e) => handleDragStart(e, goal.id)}
               onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
+              onDragLeave={(e) => { // ADD THIS LINE
+		  e.currentTarget.style.backgroundColor = ''; // Reset background color
+	      }}
               onDrop={(e) => handleDrop(e, goal.id)}
               onContextMenu={(e) => handleContextMenu(e, goal.id)}
             >
