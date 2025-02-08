@@ -1,16 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goal & Project Tracker</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goal & Project Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
         /* Reset and base styles */
         * {
             margin: 0;
@@ -870,12 +870,352 @@
           color: var(--text-color) !important;
           border: 1px solid var(--border-color);
         }
-    </style>
-</head>
+        
 
+        .status-missed {
+            background-color: #ef9a9a !important;
+        }
+        
+                /* Week View Styles */
+        .week-view {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .week-filters {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem;
+          background: var(--card-bg);
+          border-radius: 8px;
+        }
+        
+        .week-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 1rem;
+        }
+        
+        .week-day {
+          background: var(--card-bg);
+          border-radius: 8px;
+          padding: 1rem;
+          min-height: 200px;
+        }
+        
+        .week-item {
+          padding: 0.75rem;
+          margin: 0.5rem 0;
+          border-radius: 4px;
+          font-size: 0.9rem;
+          color: var(--text-color);
+          transition: transform 0.2s;
+        }
+        
+        .week-item:hover {
+          transform: translateX(4px);
+        }
+        
+        /* Day View Styles */
+        .day-view {
+          display: grid;
+          grid-template-columns: 100px 1fr;
+          gap: 1rem;
+        }
+        
+        .timeline {
+          display: grid;
+          grid-template-rows: repeat(24, 60px);
+        }
+        
+        .time-slot {
+          display: grid;
+          grid-template-columns: 60px 1fr;
+          border-bottom: 1px solid var(--border-color);
+          padding: 0.5rem 0;
+        }
+        
+        .hour-label {
+          color: var(--secondary-text);
+          font-size: 0.8rem;
+          padding-right: 1rem;
+          text-align: right;
+        }
+        
+        .scheduled-items {
+          position: relative;
+        }
+        
+        .scheduled-item {
+          background: var(--goal-bg);
+          padding: 0.5rem;
+          margin: 2px 0;
+          border-radius: 4px;
+          font-size: 0.85rem;
+          cursor: move;
+          transition: transform 0.2s;
+        }
+        
+        .scheduled-item:hover {
+          transform: translateX(4px);
+        }
+        
+        .calendar-day-header {
+          padding: 0.5rem;
+          text-align: center;
+          font-weight: bold;
+          color: var(--text-color);
+          background: var(--card-bg);
+          border-bottom: 1px solid var(--border-color);
+        }
+        
+        .status-done {
+          background-color: #90caf9;
+          color: var(--text-color);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+        
+        .status-in-progress {
+          background-color: #a5d6a7;
+          color: var(--text-color);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+        
+        .status-not-worked {
+          background-color: #fff59d;
+          color: var(--text-color);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+        
+        .status-missed {
+          background-color: #ef9a9a;
+          color: var(--text-color);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+        
+        .status-due-date {
+          background-color: #f44336;
+          color: white;
+          font-weight: bold;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+
+          
+          
+        .view-controls {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .view-controls button {
+          padding: 0.5rem 1rem;
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          background: var(--button-color);
+          cursor: pointer;
+        }
+        
+        .view-controls button.active {
+          background: #90caf9;
+          color: white;
+          border-color: #90caf9;
+        }
+        
+        .day-view {
+          margin-top: 1rem;
+        }
+        
+        .timeline {
+          display: grid;
+          grid-template-rows: repeat(24, 60px);
+          border-left: 1px solid var(--border-color);
+          border-top: 1px solid var(--border-color);
+        }
+        
+        .time-slot {
+          display: grid;
+          grid-template-columns: 80px 1fr;
+          border-bottom: 1px solid var(--border-color);
+          padding: 0.5rem;
+        }
+        
+        .hour-label {
+          color: var(--secondary-text);
+          font-size: 0.9rem;
+          padding-right: 1rem;
+          text-align: right;
+        }
+        
+        .scheduled-items {
+          position: relative;
+        }
+        
+        .scheduled-item {
+          padding: 0.5rem;
+          margin: 2px 0;
+          border-radius: 4px;
+          font-size: 0.85rem;
+          cursor: move;
+          transition: transform 0.2s;
+        }
+        
+        .scheduled-item:hover {
+          transform: translateX(4px);
+        }
+        
+        .item-content {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+        
+        .item-time {
+          font-weight: bold;
+          color: var(--text-color);
+        }
+        
+        .item-title {
+          flex: 1;
+        }
+        
+        
+        
+        .week-view {
+          padding: 1rem;
+          background: var(--background-color);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .week-filters {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+        
+        .week-filters select {
+          padding: 0.5rem;
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          background: var(--button-color);
+          color: var(--text-color);
+        }
+        
+        .week-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+        
+        .week-day {
+          background: var(--card-bg);
+          border-radius: 8px;
+          padding: 1rem;
+          min-height: 200px;
+        }
+        
+        .day-header {
+          font-weight: bold;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid var(--border-color);
+          color: var(--text-color);
+        }
+                
+
+        .goal-title {
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+          color: var(--text-color);
+        }
+        
+        .due-date {
+          font-size: 0.85rem;
+          margin-bottom: 0.5rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+        
+        .checkup {
+          font-size: 0.8rem;
+          margin-bottom: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          color: black;
+        }
+        
+        .checkup-date {
+          font-weight: bold;
+          margin-right: 0.5rem;
+        }
+        
+        .checkup-status {
+          margin-right: 0.5rem;
+          text-transform: capitalize;
+        }
+        
+        .checkup-notes {
+          font-style: italic;
+        }
+        
+        .week-navigation {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+          padding: 0.5rem;
+          background: var(--card-bg);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .week-navigation button {
+          padding: 0.5rem 1rem;
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          background: var(--button-color);
+          color: var(--text-color);
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        
+        .week-navigation button:hover {
+          background: var(--button-color-hover);
+        }
+        
+        .week-range {
+          font-weight: bold;
+          color: var(--text-color);
+        }
+        
+        /* Goal Type Colors For Week view calendar */
+        .goal-type-goal {
+          background-color: var(--goal-bg);
+          border-left: 4px solid var(--goal-text);
+        }
+        
+        .goal-type-homework {
+          background-color: var(--homework-bg);
+          border-left: 4px solid var(--homework-text);
+        }
+        
+        .goal-type-project {
+          background-color: var(--project-bg);
+          border-left: 4px solid var(--project-text);
+        }
+        
+  </style>
+</head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
+  <div id="root"></div>
+  <script type="text/babel">
 
 
 
@@ -895,29 +1235,29 @@
       />
     </div>
   );
-};
+  };
 
-const Card = ({ children, className = "" }) => {
+  const Card = ({ children, className = "" }) => {
   return <div className={`card ${className}`}>{children}</div>;
-};
+  };
 
-const CardHeader = ({ children, className = "" }) => {
+  const CardHeader = ({ children, className = "" }) => {
   return <div className={`card-header ${className}`}>{children}</div>;
-};
+  };
 
-const CardTitle = ({ children, className = "" }) => {
+  const CardTitle = ({ children, className = "" }) => {
   return <h3 className={`card-title ${className}`}>{children}</h3>;
-};
+  };
 
-const CardContent = ({ children, className = "" }) => {
+  const CardContent = ({ children, className = "" }) => {
   return <div className={`card-content ${className}`}>{children}</div>;
-};
+  };
 
-   const { useState, useEffect } = React;
-const supabase = supabase.createClient('https://ifiiddpbsrvulixjlpab.supabase.co', 
+  const { useState, useEffect, useMemo } = React;
+  const supabase = supabase.createClient('https://ifiiddpbsrvulixjlpab.supabase.co', 
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaWlkZHBic3J2dWxpeGpscGFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyMDU1ODEsImV4cCI6MjA1MTc4MTU4MX0.WSesjcQcOFBjkiE-DLEZ04SMQFThj3MYFPJ6F0h5AfU'
-);
-const App = () => {
+  );
+  const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -929,46 +1269,73 @@ const App = () => {
   const [currentDate, setCurrentDate] = useState(luxon.DateTime.now());
   const [quickForm, setQuickForm] = useState({ visible: false, date: null });
   const [showSettings, setShowSettings] = useState(false);
-const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });
 
-  
-const setupSubscription = (userId) => {
-	  // Ensure only one subscription exists
-	  return supabase
-	    .channel(`goals:${userId}`)
-	    .on('postgres_changes', {
-	      event: '*',
-	      schema: 'public',
-	      table: 'goals',
-	      filter: `user_id=eq.${userId}`,
-	    }, (payload) => {
-	      switch (payload.eventType) {
-		case 'INSERT':
-		  setGoals((current) => [payload.new, ...current]);
-		  break;
-		case 'UPDATE':
-		  setGoals((current) =>
-		    current.map((goal) =>
-		      goal.id === payload.new.id ? payload.new : goal
-		    )
-		  );
-		  break;
-		case 'DELETE':
-		  setGoals((current) =>
-		    current.filter((goal) => goal.id !== payload.old.id)
-		  );
-		  if (selectedGoal === payload.old.id) {
-		    setSelectedGoal(null);
-		  }
-		  break;
-		default:
-		  break;
-	      }
-	    })
-	    .subscribe();
-	};
+  const setupSubscription = (userId) => {
+    return supabase
+      .channel(`goals:${userId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'goals',
+        filter: `user_id=eq.${userId}`,
+      }, (payload) => {
+        switch (payload.eventType) {
+          case 'INSERT':
+            setGoals((current) => [payload.new, ...current]);
+            break;
+          case 'UPDATE':
+            setGoals((current) =>
+              current.map((goal) =>
+                goal.id === payload.new.id ? payload.new : goal
+              )
+            );
+            break;
+          case 'DELETE':
+            setGoals((current) =>
+              current.filter((goal) => goal.id !== payload.old.id)
+            );
+            if (selectedGoal === payload.old.id) {
+              setSelectedGoal(null);
+            }
+            break;
+          default:
+            break;
+        }
+      })
+      .subscribe();
+  };
+
+  const reconnectToSupabase = async () => {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      if (session?.user) {
+        await fetchGoals(session.user.id);
+        setupSubscription(session.user.id);
+      }
+    } catch (err) {
+      setError(`Reconnection failed: ${err.message}`);
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        reconnectToSupabase();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Handle auth state changes
   useEffect(() => {
@@ -989,7 +1356,7 @@ const setupSubscription = (userId) => {
       } catch (err) {
         if (mounted) {
           setError(err.message);
-          setTimeout(() => setError(null), 5000); // Clear error after 5 seconds
+          setTimeout(() => setError(null), 5000);
         }
       } finally {
         if (mounted) {
@@ -997,8 +1364,6 @@ const setupSubscription = (userId) => {
         }
       }
     };
-
-    
 
     checkUser();
 
@@ -1033,81 +1398,81 @@ const setupSubscription = (userId) => {
 
   const fetchGoals = async (userId) => {
     try {
-        const { data, error: fetchError } = await supabase
-            .from('goals')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+      const { data, error: fetchError } = await supabase
+        .from('goals')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-        if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-        setGoals(data || []); // Update the state with the fetched goals
+      setGoals(data || []);
     } catch (err) {
-        setError(`Failed to fetch goals: ${err.message}`);
-        setTimeout(() => setError(null), 5000); // Clear the error after 5 seconds
+      setError(`Failed to fetch goals: ${err.message}`);
+      setTimeout(() => setError(null), 5000);
     }
-};
+  };
 
-  	useEffect(() => {
-	  let subscription = null;
+        useEffect(() => {
+          let subscription = null;
 
-	  const initializeApp = async () => {
-	    try {
-	      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-	      if (sessionError) throw sessionError;
+          const initializeApp = async () => {
+            try {
+              const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+              if (sessionError) throw sessionError;
 
-	      setUser(session?.user ?? null);
+              setUser(session?.user ?? null);
 
-	      if (session?.user) {
-		await fetchGoals(session.user.id); // Fetch initial goals
-		subscription = setupSubscription(session.user.id); // Setup single subscription
-	      }
-	    } catch (err) {
-	      setError(err.message);
-	    } finally {
-	      setLoading(false);
-	    }
-	  };
+              if (session?.user) {
+                await fetchGoals(session.user.id); // Fetch initial goals
+                subscription = setupSubscription(session.user.id); // Setup single subscription
+              }
+            } catch (err) {
+              setError(err.message);
+            } finally {
+              setLoading(false);
+            }
+          };
 
-	  initializeApp();
+          initializeApp();
 
-	  return () => {
-	    if (subscription) {
-	      supabase.removeChannel(subscription); // Cleanup subscription on unmount
-	    }
-	  };
-	}, []);
+          return () => {
+            if (subscription) {
+              supabase.removeChannel(subscription); // Cleanup subscription on unmount
+            }
+          };
+        }, []);
 
 
-	  const addGoal = async (goalData) => {
-		  setError(null);
-		  // Remove setIsLoading(true) from here since it's handled in Sidebar
+          const addGoal = async (goalData) => {
+                  setError(null);
+                  // Remove setIsLoading(true) from here since it's handled in Sidebar
 
-		  try {
-		    const now = luxon.DateTime.now().setZone('local');
-		    const newGoal = {
-		      ...goalData,
-		      user_id: user.id,
-		      created_at: now.toISO(),
-		      checkups: [],
-		    };
+                  try {
+                    const now = luxon.DateTime.now().setZone('local');
+                    const newGoal = {
+                      ...goalData,
+                      user_id: user.id,
+                      created_at: now.toISO(),
+                      checkups: [],
+                    };
 
-		    const { data, error } = await supabase
-		      .from('goals')
-		      .insert([newGoal])
-		      .select();
+                    const { data, error } = await supabase
+                      .from('goals')
+                      .insert([newGoal])
+                      .select();
 
-		    if (error) throw error;
+                    if (error) throw error;
 
-		    // Update local state immediately
-		    if (data?.[0]) {
-		      setGoals(current => [data[0], ...current]);
-		    }
-		  } catch (err) {
-		    setError(`Failed to create goal: ${err.message}`);
-		  }
-		  // Remove setIsLoading(false) from here
-		};
+                    // Update local state immediately
+                    if (data?.[0]) {
+                      setGoals(current => [data[0], ...current]);
+                    }
+                  } catch (err) {
+                    setError(`Failed to create goal: ${err.message}`);
+                  }
+                  // Remove setIsLoading(false) from here
+                };
 
   const updateGoal = async (goalId, updates) => {
     const originalGoal = goals.find((goal) => goal.id === goalId);
@@ -1138,7 +1503,7 @@ const setupSubscription = (userId) => {
             current.map((goal) => (goal.id === goalId ? originalGoal : goal))
         ); // Revert on error
     }
-};
+  };
 
 
   const deleteGoal = async (goalId) => {
@@ -1185,7 +1550,12 @@ const setupSubscription = (userId) => {
         setError(`Failed to delete goal: ${err.message}`);
         setGoals(originalGoals); // Restore original state
     }
-};
+  };
+  
+  const handleGoalSelect = (goalId) => {
+    console.log('Selecting Goal:', goalId);
+    setSelectedGoal(goalId);
+  };
 
     const toggleDarkMode = () => {
       setIsDarkMode(prev => {
@@ -1251,7 +1621,7 @@ const setupSubscription = (userId) => {
         setError(err.message);
         setTimeout(() => setError(null), 5000);
     }
-};
+  };
 
 
 
@@ -1268,7 +1638,7 @@ const setupSubscription = (userId) => {
             Loading your goals...
         </div>
     );
-}
+  }
 
 
   if (!user) {
@@ -1295,7 +1665,7 @@ const setupSubscription = (userId) => {
 
       
 
-<Sidebar
+  <Sidebar
   goals={goals}
   onAddGoal={addGoal}
   onSelectGoal={setSelectedGoal}
@@ -1304,7 +1674,7 @@ const setupSubscription = (userId) => {
   updateGoal={updateGoal}
   setGoals={setGoals}
   user={user}
-/>
+  />
 
   <div className="main-content-container">
     {showSettings && selectedGoal && (
@@ -1315,65 +1685,67 @@ const setupSubscription = (userId) => {
         onDelete={() => deleteGoal(selectedGoal)}
       />
     )}
-
-<header className="header">
-  <div className="header-left">
-    <button
-      className={currentTab === "overview" ? "active" : ""}
-      onClick={() => setCurrentTab("overview")}
-    >
-      Weekly Overview
-    </button>
-    <button
-      className={currentTab === "calendar" ? "active" : ""}
-      onClick={() => setCurrentTab("calendar")}
-    >
-      Calendar
-    </button>
-  </div>
-  <div className="header-right">
-    
-
-	<button 
-      className="theme-toggle" 
-      id="darkModeToggle"
-      onClick={toggleDarkMode} // Add this
-    >
-      {isDarkMode ? '🌙' : '☀️'} Theme
-    </button>
-    <span className="user-email">{user.email}</span>
-    <button
-      className="sign-out-button"
-      onClick={async () => {
-        try {
-          const { error } = await supabase.auth.signOut();
-          if (error) throw error;
-          alert('You have successfully signed out.');
-        } catch (err) {
-          alert(`Sign out failed: ${err.message}`);
-        }
-      }}
-    >
-      Sign Out
-    </button>
-  </div>
-</header>
+        <header className="header">
+          <div className="header-left">
+            <button
+              className={currentTab === "overview" ? "active" : ""}
+              onClick={() => setCurrentTab("overview")}
+            >
+              Weekly Overview
+            </button>
+            <button
+              className={currentTab === "calendar" ? "active" : ""}
+              onClick={() => setCurrentTab("calendar")}
+            >
+              Calendar
+            </button>
+          </div>
+          <div className="header-right">
+            
+        
+                <button 
+              className="theme-toggle" 
+              id="darkModeToggle"
+              onClick={toggleDarkMode} // Add this
+            >
+              {isDarkMode ? '🌙' : '☀️'} Theme
+            </button>
+            <span className="user-email">{user.email}</span>
+            <button
+              className="sign-out-button"
+              onClick={async () => {
+                try {
+                  const { error } = await supabase.auth.signOut();
+                  if (error) throw error;
+                  alert('You have successfully signed out.');
+                } catch (err) {
+                  alert(`Sign out failed: ${err.message}`);
+                }
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        </header>
 
 
         <main className="main-content">
           {currentTab === "overview" && <WeeklyOverview goals={goals} />}
           {currentTab === "calendar" && (
             <Calendar
+              goals={goals}
               viewMode={viewMode}
               onChangeViewMode={setViewMode}
               currentDate={currentDate}
               onChangeDate={setCurrentDate}
-              selectedGoal={goals.find(g => g.id === selectedGoal)}
+              selectedGoal={selectedGoal}
               onDayClick={(date) => {
                 if (date > luxon.DateTime.now()) return;
                 setQuickForm({ visible: true, date });
               }}
               onGearClick={() => setShowSettings(true)}
+              setGoals={setGoals} 
+              user={user}
             />
           )}
         </main>
@@ -1389,10 +1761,10 @@ const setupSubscription = (userId) => {
       )}
     </div>
   );
-};
+  };
 
 
-const Auth = () => {
+  const Auth = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -1484,7 +1856,7 @@ const Auth = () => {
       </div>
     </div>
   );
-};
+  };
     // QuickForm component
     const QuickForm = ({ date, goal, onSubmit, onClose, isEditing }) => {
 
@@ -1535,7 +1907,7 @@ const Auth = () => {
     };
     
 
-const Sidebar = ({ 
+  const Sidebar = ({ 
   goals, 
   onAddGoal, 
   onSelectGoal, 
@@ -1543,7 +1915,7 @@ const Sidebar = ({
   onUpdatePriority, 
   user,
   setGoals // Add this line
-}) => {
+  }) => {
 
   const [showNewGoalForm, setShowNewGoalForm] = React.useState(false);
   const [sortBy, setSortBy] = React.useState('priority');
@@ -1551,6 +1923,9 @@ const Sidebar = ({
   const [error, setError] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState(''); // Add local searchQuery state
+  const [selectedFrequency, setSelectedFrequency] = React.useState("daily");
+  const [selectedWeeklyDays, setSelectedWeeklyDays] = React.useState([]);
+
 
   const sortedGoals = React.useMemo(() => {
     let filteredGoals = goals.filter(goal =>
@@ -1576,11 +1951,12 @@ const Sidebar = ({
       }
     });
   }, [goals, sortBy, filterType, searchQuery]); // Add searchQuery to dependencies
-// In Sidebar component
+  // In Sidebar component
 
 
-// Update these handlers in your Sidebar component
-const handleDragStart = (e, goalId) => {
+  
+
+  const handleDragStart = (e, goalId) => {
   e.dataTransfer.setData("text/plain", goalId);
   e.currentTarget.classList.add('dragging');
 };
@@ -1653,10 +2029,10 @@ const handleDrop = async (e, targetGoalId) => {
   }
 };
        // Add right after the handleDrop function
-const duplicateGoal = async (goalId) => {
+  const duplicateGoal = async (goalId) => {
   const original = goals.find(g => g.id === goalId);
   if (!original) return;
-  
+
   const newGoal = {
     ...original,
     title: `Copy of ${original.title}`,
@@ -1664,7 +2040,7 @@ const duplicateGoal = async (goalId) => {
     priority: (original.priority || 1) + 1,
     id: undefined
   };
-  
+
   try {
     const { data, error } = await supabase
       .from('goals')
@@ -1676,36 +2052,35 @@ const duplicateGoal = async (goalId) => {
   } catch (err) {
     setError('Failed to duplicate goal');
   }
-};
-useEffect(() => {
+  };
+  useEffect(() => {
   const handleClickOutside = () => {
     setContextMenu({ visible: false });
   };
 
   document.addEventListener('click', handleClickOutside);
   return () => document.removeEventListener('click', handleClickOutside);
-}, []);
+  }, []);
        
 
 
-const [contextMenu, setContextMenu] = useState({
+  const [contextMenu, setContextMenu] = useState({
   visible: false,
   x: 0,
   y: 0,
   goalId: null
-});
-
-const handleContextMenu = (e, goalId) => {
-  e.preventDefault();
-  setContextMenu({
-    visible: true,
-    x: e.clientX,
-    y: e.clientY,
-    goalId
   });
-};
 
-const daysUntilDue = () => {
+  const handleContextMenu = (e, goalId) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      goalId
+    });
+  };
+  const daysUntilDue = () => {
     if (!goal.dueDate) return null;
     const due = luxon.DateTime.fromISO(goal.dueDate);
     const now = luxon.DateTime.now();
@@ -1730,13 +2105,19 @@ const daysUntilDue = () => {
         throw new Error('Due date is required');
       }
 
-      const newGoal = {
-        title,
-        description: formData.get('description')?.trim(),
-        frequency: formData.get('frequency'),
-        type: formData.get('type'),
-        dueDate,
-      };
+        const newGoal = {
+            title,
+            description: formData.get("description")?.trim(),
+            frequency: selectedFrequency,
+            type: formData.get("type"),
+            created_at: luxon.DateTime.now().toISO(),
+            checkups: [],
+            dueDate: selectedFrequency === "one-time" ? formData.get("dueDate") : null, 
+            weeklyDays: selectedFrequency === "weekly" ? selectedWeeklyDays : null, 
+        };
+
+
+
 
       await onAddGoal(newGoal);
       setShowNewGoalForm(false);
@@ -1799,44 +2180,45 @@ const daysUntilDue = () => {
           {error}
         </div>
       )}
-        {contextMenu.visible && (
-          <div 
-            className="context-menu"
-            style={{
-              position: 'fixed',
-              left: contextMenu.x,
-              top: contextMenu.y,
-              backgroundColor: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              zIndex: 1000
-            }}
-            onClick={() => setContextMenu({ visible: false })}
-          >
-            <button
-              onClick={() => {
-                setSelectedGoal(contextMenu.goalId);
-                setShowSettings(true);
+        // Render the context menu
+          {contextMenu.visible && (
+            <div
+              className="context-menu"
+              style={{
+                position: 'fixed',
+                left: contextMenu.x,
+                top: contextMenu.y,
+                backgroundColor: 'var(--card-bg)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                zIndex: 1000
               }}
-              className="menu-item"
+              onClick={() => setContextMenu({ visible: false })}
             >
-              Edit Goal
-            </button>
-            <button
-              onClick={() => deleteGoal(contextMenu.goalId)}
-              className="menu-item"
-            >
-              Delete Goal
-            </button>
-            <button
-              onClick={() => {/* Add duplicate logic here */}}
-              className="menu-item"
-            >
-              Duplicate
-            </button>
-          </div>
-        )}
+              <button
+                onClick={() => {
+                  setSelectedGoal(contextMenu.goalId);
+                  setShowSettings(true); // Open the settings modal
+                }}
+                className="menu-item"
+              >
+                Edit Goal
+              </button>
+              <button
+                onClick={() => deleteGoal(contextMenu.goalId)}
+                className="menu-item"
+              >
+                Delete Goal
+              </button>
+              <button
+                onClick={() => duplicateGoal(contextMenu.goalId)}
+                className="menu-item"
+              >
+                Duplicate
+              </button>
+            </div>
+          )}
 
       {showNewGoalForm && (
         <form onSubmit={handleNewGoal}>
@@ -1853,12 +2235,38 @@ const daysUntilDue = () => {
           />
           <select 
             name="frequency" 
-            disabled={isLoading}
-          >
+            value={selectedFrequency} 
+            onChange={(e) => setSelectedFrequency(e.target.value)}
+        >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="one-time">One-time</option>
           </select>
+        {selectedFrequency === "weekly" && (
+            <div>
+                <label>Select Weekly Days:</label>
+                <div>
+                    {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(day => (
+                        <label key={day} style={{ marginRight: "10px" }}>
+                            <input
+                                type="checkbox"
+                                value={day}
+                                checked={selectedWeeklyDays.includes(day)}
+                                onChange={(e) => {
+                                    if (e.target.checked) {
+                                        setSelectedWeeklyDays([...selectedWeeklyDays, day]);
+                                    } else {
+                                        setSelectedWeeklyDays(selectedWeeklyDays.filter(d => d !== day));
+                                    }
+                                }}
+                            />
+                            {day}
+                        </label>
+                    ))}
+                </div>
+            </div>
+        )}
+
           <select 
             name="type" 
             required
@@ -1896,185 +2304,469 @@ const daysUntilDue = () => {
       )}
 
         {sortedGoals.map(goal => (
-            <div 
-              key={goal.id}
-              className={`goal-item goal-type-${goal.type} ${goal.id === selectedGoal ? 'selected' : ''}`}
-              onClick={() => onSelectGoal(goal.id)}
-              draggable
-              onDragStart={(e) => handleDragStart(e, goal.id)}
-              onDragOver={handleDragOver}
-              onDragEnd={handleDragEnd}
-              onDragLeave={(e) => { // ADD THIS LINE
-		  e.currentTarget.style.backgroundColor = ''; // Reset background color
-	      }}
-              onDrop={(e) => handleDrop(e, goal.id)}
-              onContextMenu={(e) => handleContextMenu(e, goal.id)}
-            >
-              <div className="goal-content">
-                <h3>{goal.title}</h3>
-                <div className="priority-control">
-                  <span className="priority-badge">Priority: {goal.priority}</span>
-                </div>
+          <div
+            key={goal.id}
+            className={`goal-item goal-type-${goal.type} ${
+              selectedGoal === goal.id ? 'selected' : ''
+            }`}
+            onClick={() => onSelectGoal(goal.id)}
+            onDoubleClick={() => {
+              setSelectedGoal(goal.id);
+              setShowSettings(true); // Open the settings modal
+            }}
+            draggable
+            onDragStart={(e) => handleDragStart(e, goal.id)}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onDrop={(e) => handleDrop(e, goal.id)}
+            onContextMenu={(e) => handleContextMenu(e, goal.id)}
+          >
+            <div className="goal-content">
+              <h3>{goal.title}</h3>
+              <div className="priority-control">
+                <span className="priority-badge">Priority: {goal.priority}</span>
               </div>
-                {goal.type && <p>Type: {goal.type}</p>}
-                {goal.dueDate && (
-                <span ClassName={'text-red-600 font-semibold' }>
-                  Due: {luxon.DateTime.fromISO(goal.dueDate).toLocaleString()}
-                </span>
-                  )}
             </div>
+            {goal.type && <p>Type: {goal.type}</p>}
+            {goal.dueDate && (
+              <span className={'text-red-600 font-semibold' }>
+                Due: {luxon.DateTime.fromISO(goal.dueDate).toLocaleString()}
+              </span>
+            )}
+          </div>
         ))}
     </div>
   );
-};
-    const Calendar = ({ 
-    viewMode, 
-    onChangeViewMode, 
-    currentDate, 
-    onChangeDate, 
-    selectedGoal,
-    onDayClick,
-    onGearClick // Prop for handling gear icon click
+  };
+   
+const Calendar = ({ 
+  goals, 
+  viewMode, 
+  onChangeViewMode, 
+  currentDate, 
+  onChangeDate, 
+  selectedGoal,
+  onDayClick,
+  onGearClick,
+  setGoals,
+  user
 }) => {
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-   	 const getDaysInView = () => {
-	    // Convert to user's local timezone
-	    const localCurrentDate = currentDate.setZone('local');
-	    const start = localCurrentDate.startOf('month').startOf('week').minus({ days: 1 });
-	    const end = localCurrentDate.endOf('month').endOf('week').minus({ days: 1 });
-	    const days = [];
-	    let current = start;
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const [weekFilter, setWeekFilter] = useState({ type: 'all', content: 'all' });
+const [scheduledItems, setScheduledItems] = useState({});
 
-	    while (current <= end) {
-		days.push(current);
-		current = current.plus({ days: 1 });
-	    }
+const [currentWeekStart, setCurrentWeekStart] = useState(
+  luxon.DateTime.now().startOf('week')
+);
 
-	    return days;
-	};
+  const getDaysInView = () => {
+      // Convert to user's local timezone
+      const localCurrentDate = currentDate.setZone('local');
+      const start = localCurrentDate.startOf('month').startOf('week').minus({ days: 1 });
+      const end = localCurrentDate.endOf('month').endOf('week').minus({ days: 1 });
+      const days = [];
+      
 
+      let current = start;
 
-    const getStatusForDay = (date) => {
-    if (!selectedGoal) return null;
+      while (current <= end) {
+          days.push(current);
+          current = current.plus({ days: 1 });
+      }
 
-    const localDate = date.setZone('local').startOf('day');
-    
-    // Check if this date is the due date
-    if (selectedGoal.dueDate) {
-        const dueDate = luxon.DateTime.fromISO(selectedGoal.dueDate)
-            .setZone('local')
-            .startOf('day');
-            
-        if (dueDate.equals(localDate)) {
-            return {
-                status: 'due-date',
-                message: `${selectedGoal.title} is due`,
-            };
-        }
+      return days;
+  };
+  
+  
+  
+const filteredWeekItems = useMemo(() => {
+  const weekStart = currentWeekStart.startOf('day');
+  const weekEnd = currentWeekStart.plus({ days: 6 }).endOf('day');
+
+  return goals.filter(goal => {
+    // Type filter
+    const typeMatch = weekFilter.type === 'all' || goal.type === weekFilter.type;
+
+    // Content filter
+    let contentMatch = true;
+    if (weekFilter.content !== 'all') {
+      const hasCheckups = goal.checkups && goal.checkups.some(checkup => {
+        const checkupDate = luxon.DateTime.fromISO(checkup.date);
+        return checkupDate >= weekStart && checkupDate <= weekEnd;
+      });
+      const hasDueDate = goal.dueDate && luxon.DateTime.fromISO(goal.dueDate) >= weekStart && luxon.DateTime.fromISO(goal.dueDate) <= weekEnd;
+
+      switch (weekFilter.content) {
+        case 'checkups':
+          contentMatch = hasCheckups;
+          break;
+        case 'due-dates':
+          contentMatch = hasDueDate;
+          break;
+        case 'both':
+          contentMatch = hasCheckups || hasDueDate;
+          break;
+        default:
+          contentMatch = true;
+      }
     }
 
-    // Check for notes or status in `checkups`
-    const checkup = selectedGoal.checkups?.find((c) => {
-        const checkupDate = luxon.DateTime.fromISO(c.date)
-            .setZone('local')
-            .startOf('day');
-        return checkupDate.equals(localDate);
-    });
+    return typeMatch && contentMatch;
+  });
+}, [goals, weekFilter, currentWeekStart]);
+  
+  
+  const isDueOnDay = (goal, day) => {
+    if (!goal.dueDate) return false;
+    const dueDate = luxon.DateTime.fromISO(goal.dueDate);
+    return dueDate.hasSame(day, 'day');
+  };
+  
+  const getGoalTime = (goal) => {
+    return goal.scheduledTime ? 
+      luxon.DateTime.fromISO(goal.scheduledTime).toFormat('h:mm a') : 
+      'Anytime';
+  };
 
-    if (checkup) {
-        return {
-            status: checkup.status,
-            message: checkup.notes || '',
-        };
-    }
+  // Get array of days in current week
+  const getWeekDays = (date) => {
+    const start = date.startOf('week');
+    return Array.from({length: 7}).map((_, i) => start.plus({days: i}));
+  };
 
+ const getStatusForDay = (date) => {
+  // If no goal is selected, return null
+  if (!selectedGoal) {
     return null;
+  }
+
+  // Find the selected goal in the goals array
+  const goal = goals.find(g => g.id === selectedGoal);
+  if (!goal) {
+    return null;
+  }
+
+  // Convert dates to local time and start of day for accurate comparison
+  const localDate = date.setZone('local').startOf('day');
+  const today = luxon.DateTime.now().startOf('day');
+  const goalCreatedDate = luxon.DateTime.fromISO(goal.created_at).startOf('day');
+
+  // Ignore dates before goal creation and future dates
+  if (localDate < goalCreatedDate || localDate > today) {
+    return null;
+  }
+
+  // Check if this is the due date
+  if (goal.dueDate) {
+    const dueDate = luxon.DateTime.fromISO(goal.dueDate).startOf('day');
+    if (dueDate.equals(localDate)) {
+      return {
+        status: 'due-date',
+        message: `${goal.title} is due`,
+      };
+    }
+  }
+
+  // Handle weekly goals
+  if (goal.frequency === "weekly" && goal.weeklyDays?.length) {
+    const dayName = localDate.toFormat("EEEE");
+    if (goal.weeklyDays.includes(dayName)) {
+      const hasEntry = goal.checkups?.some(c => 
+        luxon.DateTime.fromISO(c.date).hasSame(localDate, "day")
+      );
+      if (!hasEntry) {
+        return { 
+          status: "missed", 
+          message: "Missed weekly check-in" 
+        };
+      }
+    }
+  }
+
+  // Check for existing checkups
+  const checkup = goal.checkups?.find(c => 
+    luxon.DateTime.fromISO(c.date).hasSame(localDate, "day")
+  );
+
+  if (checkup) {
+    return {
+      status: checkup.status,
+      message: checkup.notes || ''
+    };
+  }
+
+  // If no specific status, return null
+  return null;
 };
 
 
-    const today = luxon.DateTime.now();
+  const handleDragStart = (e, goal) => {
+    e.dataTransfer.setData("text/plain", goal.id);
+  };
+  
+  const handleDrop = async (e, hour) => {
+  e.preventDefault();
+  const goalId = e.dataTransfer.getData("text/plain");
+  const goal = goals.find(g => g.id === goalId);
 
-    return (
-        <div className="calendar">
-            {/* Calendar Header */}
-            <div className="calendar-header">
-              <button onClick={() => onChangeDate(currentDate.minus({ months: 1 }))}>
-                Previous
-              </button>
-              <div>{currentDate.toLocaleString({ month: "long", year: "numeric" })}</div>
-              <button onClick={() => onChangeDate(currentDate.plus({ months: 1 }))}>
-                Next
-              </button>
-              <select value={viewMode} onChange={(e) => onChangeViewMode(e.target.value)}>
-                <option value="day">Day</option>
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-              </select>
-              <button
-                onClick={onGearClick}
-                style={{ fontSize: "2rem", cursor: "pointer", background: "none", border: "none" }}
-                aria-label="Open settings"
-              >
-                ⚙️
-              </button>
-            </div>
+  if (!goal) return;
 
+  // Update the goal's scheduled time
+  const updatedGoal = {
+    ...goal,
+    scheduledTime: luxon.DateTime.now().set({ hour, minute: 0 }).toISO(),
+  };
 
-            {/* Days of the Week */}
-		    <div className="calendar-grid calendar-days-of-week">
-			{daysOfWeek.map(day => (
-			    <div key={day} className="calendar-day-header">{day}</div>
-			))}
-		    </div>
+  // Update the local state optimistically
+  setGoals((currentGoals) =>
+    currentGoals.map((g) => (g.id === goalId ? updatedGoal : g))
+  );
 
-		    <div className="calendar-grid">
-			    {getDaysInView().map((date) => {
-				const dayInfo = getStatusForDay(date);
-				const status = dayInfo?.status;
-				const message = dayInfo?.message;
-				
-				const isCurrentDay = date.hasSame(luxon.DateTime.now(), 'day');
-				const isDueDate = status === 'due-date';
-				
-				return (
-				    <div
-					key={date.toISO()}
-					className={`calendar-day 
-					    ${isCurrentDay ? 'current' : ''} 
-					    ${isDueDate ? 'status-due-date' : status ? `status-${status}` : ''}`}
-					onClick={() => onDayClick(date)}
-				    >
-                    
-					<div className="calendar-day-number">
-					    {date.toLocaleString({ day: 'numeric' })}
-					</div>
-					{isDueDate && (
-					    <div className="calendar-day-label">
-						{message}
-					    </div>
-					)}
-					{!isDueDate && message && (
-					    <div className="calendar-day-notes" title={message}>
-						{message}
-					    </div>
-					)}
-                        
-				    </div>
-				);
-			    })}
-			</div>
+  // Persist the change to Supabase
+  try {
+    const { error } = await supabase
+      .from('goals')
+      .update({ scheduledTime: updatedGoal.scheduledTime })
+      .eq('id', goalId)
+      .eq('user_id', user.id); // Use user.id from props
 
-
-        </div>
+    if (error) throw error;
+  } catch (err) {
+    console.error('Failed to update scheduled time:', err);
+    // Revert the local state if the update fails
+    setGoals((currentGoals) =>
+      currentGoals.map((g) => (g.id === goalId ? goal : g))
     );
+  }
 };
+  
+  const today = luxon.DateTime.now();
 
-const WeeklyOverview = ({ goals }) => {
+return (
+  <div className="calendar">
+    {/* View Controls */}
+    <div className="view-controls">
+      <button 
+        onClick={() => onChangeViewMode('month')}
+        className={viewMode === 'month' ? 'active' : ''}
+      >
+        Month
+      </button>
+      <button 
+        onClick={() => onChangeViewMode('week')}
+        className={viewMode === 'week' ? 'active' : ''}
+      >
+        Week
+      </button>
+      <button 
+        onClick={() => onChangeViewMode('day')}
+        className={viewMode === 'day' ? 'active' : ''}
+      >
+        Day
+      </button>
+    </div>
+
+    {/* Month View */}
+    {viewMode === 'month' && (
+      <div className="month-view">
+        <div className="calendar-header">
+          <button onClick={() => onChangeDate(currentDate.minus({ months: 1 }))}>
+            Previous
+          </button>
+          <div>{currentDate.toLocaleString({ month: "long", year: "numeric" })}</div>
+          <button onClick={() => onChangeDate(currentDate.plus({ months: 1 }))}>
+            Next
+          </button>
+        </div>
+
+        <div className="calendar-grid calendar-days-of-week">
+          {daysOfWeek.map(day => (
+            <div key={day} className="calendar-day-header">{day}</div>
+          ))}
+        </div>
+
+        <div className="calendar-grid">
+          {getDaysInView().map((date) => {
+            const dayInfo = getStatusForDay(date);
+            const status = dayInfo?.status;
+            const message = dayInfo?.message;
+            const isCurrentDay = date.hasSame(luxon.DateTime.now(), 'day');
+
+            return (
+              <div
+                key={date.toISO()}
+                className={`calendar-day 
+                  ${isCurrentDay ? 'current' : ''} 
+                  ${status ? `status-${status}` : ''}`}
+                onClick={() => onDayClick(date)}
+              >
+                <div className="calendar-day-number">
+                  {date.toLocaleString({ day: 'numeric' })}
+                </div>
+                {message && (
+                  <div className={`calendar-day-notes ${status === 'due-date' ? 'due-date' : ''}`}>
+                    {message}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {/* Week View */}
+    {viewMode === 'week' && (
+      <div className="week-view">
+        <div className="week-filters">
+          <select 
+            value={weekFilter.type}
+            onChange={e => setWeekFilter(f => ({ ...f, type: e.target.value }))}
+          >
+            <option value="all">All Types</option>
+            <option value="goal">Goals</option>
+            <option value="homework">Homework</option>
+            <option value="project">Projects</option>
+          </select>
+          
+          <select 
+            value={weekFilter.content}
+            onChange={e => setWeekFilter(f => ({ ...f, content: e.target.value }))}
+          >
+            <option value="all">All Content</option>
+            <option value="checkups">Checkups Only</option>
+            <option value="due-dates">Due Dates Only</option>
+            <option value="both">Checkups & Due Dates</option>
+          </select>
+          
+        </div>
+        
+        <div className="week-navigation">
+          <button onClick={() => setCurrentWeekStart(currentWeekStart.minus({ weeks: 1 }))}>
+            Previous Week
+          </button>
+          <div className="week-range">
+            {currentWeekStart.toFormat('MMM dd')} - {currentWeekStart.plus({ days: 6 }).toFormat('MMM dd')}
+          </div>
+          <button onClick={() => setCurrentWeekStart(currentWeekStart.plus({ weeks: 1 }))}>
+            Next Week
+          </button>
+        </div>
+        
+        <div className="week-grid">
+          {Array.from({ length: 7 }).map((_, index) => {
+            const day = currentWeekStart.plus({ days: index });
+            const dayGoals = filteredWeekItems.filter(goal => {
+              const dueDate = goal.dueDate ? luxon.DateTime.fromISO(goal.dueDate) : null;
+              const hasCheckups = goal.checkups && goal.checkups.some(checkup => {
+                const checkupDate = luxon.DateTime.fromISO(checkup.date);
+                return checkupDate.hasSame(day, 'day');
+              });
+        
+              return (dueDate && dueDate.hasSame(day, 'day')) || hasCheckups;
+            });
+        
+            return (
+              <div key={day.toISODate()} className="week-day">
+                <div className="day-header">
+                  {day.toLocaleString({ weekday: 'short', day: 'numeric' })}
+                </div>
+                {dayGoals.map(goal => {
+                  const dueDate = goal.dueDate ? luxon.DateTime.fromISO(goal.dueDate) : null;
+                  const checkups = goal.checkups || [];
+        
+                  return (
+                    <div
+                      key={goal.id}
+                      className={`week-item goal-type-${goal.type}`}
+                    >
+                      <div className="goal-title">{goal.title}</div>
+                      {dueDate && dueDate.hasSame(day, 'day') && (
+                        <div className="due-date status-due-date">
+                          Due: {dueDate.toLocaleString(luxon.DateTime.TIME_SIMPLE)}
+                        </div>
+                      )}
+                      {checkups
+                        .filter(checkup => {
+                          const checkupDate = luxon.DateTime.fromISO(checkup.date);
+                          return checkupDate.hasSame(day, 'day');
+                        })
+                        .map((checkup, index) => (
+                          <div
+                            key={index}
+                            className={`checkup status-${checkup.status}`}
+                          >
+                            <span className="checkup-date">
+                              {luxon.DateTime.fromISO(checkup.date).toLocaleString(luxon.DateTime.TIME_SIMPLE)}:
+                            </span>
+                            <span className="checkup-status">{checkup.status}</span>
+                            <span className="checkup-notes">{checkup.notes}</span>
+                          </div>
+                        ))}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {/* Day View */}
+    {viewMode === 'day' && (
+      <div className="day-view">
+        <div className="timeline">
+          {Array.from({ length: 24 }).map((_, hour) => {
+            const time = luxon.DateTime.now().set({ hour, minute: 0 });
+            const scheduledItems = goals.filter(goal => {
+              if (!goal.scheduledTime) return false;
+              const goalTime = luxon.DateTime.fromISO(goal.scheduledTime);
+              return goalTime.hour === hour;
+            });
+          
+            return (
+              <div 
+                key={hour}
+                className="time-slot"
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => handleDrop(e, hour)}
+              >
+                <div className="hour-label">
+                  {time.toFormat('h a')}
+                </div>
+                <div className="scheduled-items">
+                  {scheduledItems.map(item => (
+                    <div 
+                      key={item.id}
+                      className={`scheduled-item goal-type-${item.type}`}
+                      draggable
+                      onDragStart={e => handleDragStart(e, item)}
+                    >
+                      <div className="item-content">
+                        <span className="item-time">
+                          {luxon.DateTime.fromISO(item.scheduledTime).toFormat('h:mm a')}
+                        </span>
+                        <span className="item-title">{item.title}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </div>
+);
+}
+  const WeeklyOverview = ({ goals }) => {
   const [filterType, setFilterType] = useState('all');
   const [timeRange, setTimeRange] = useState('all');
   const [sortBy, setSortBy] = useState('due-date');
-  
+
   const filterGoals = () => {
     const today = luxon.DateTime.now();
     const startOfWeek = today.startOf("week");
@@ -2172,9 +2864,9 @@ const WeeklyOverview = ({ goals }) => {
       </div>
     </div>
   );
-};
+  };
 
-const EnhancedGoalCard = ({ goal }) => {
+  const EnhancedGoalCard = ({ goal }) => {
   const calculateProgress = () => {
     if (!goal.checkups?.length) return 0;
     const completedCheckups = goal.checkups.filter(c => c.status === 'done').length;
@@ -2198,7 +2890,7 @@ const EnhancedGoalCard = ({ goal }) => {
     <div className="card p-6">
         <div>
           <h3 className="card-title">{goal.title}</h3>
-                <div class="card-content">
+                <div className="card-content">
                   {goal.type}
                 </div>
       </div>
@@ -2229,7 +2921,7 @@ const EnhancedGoalCard = ({ goal }) => {
               </span>
             </div>
           )}
-<div className="grid grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-4">
           <div className="card-footer">
             <div className="card-content">Completed</div>
             <div className="text-lg font-semibold text-blue-600">
@@ -2247,10 +2939,10 @@ const EnhancedGoalCard = ({ goal }) => {
       </div>
     </div>
   );
-};
+  };
 
 
-const SettingsModal = ({ goal, onClose, onUpdate, onDelete }) => {
+  const SettingsModal = ({ goal, onClose, onUpdate, onDelete }) => {
     const [title, setTitle] = useState(goal.title);
     const [description, setDescription] = useState(goal.description || '');
     const [frequency, setFrequency] = useState(goal.frequency || 'one-time');
@@ -2406,12 +3098,10 @@ const SettingsModal = ({ goal, onClose, onUpdate, onDelete }) => {
             </div>
         </>
     );
-};
+  };
 
-    // Render the app
-ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(<App />, document.getElementById('root'));
 
-</script>
+  </script>
 </body>
-
 </html>
