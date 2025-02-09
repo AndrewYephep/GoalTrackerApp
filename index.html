@@ -1413,66 +1413,66 @@
     }
   };
 
-        useEffect(() => {
-          let subscription = null;
+  useEffect(() => {
+    let subscription = null;
 
-          const initializeApp = async () => {
-            try {
-              const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-              if (sessionError) throw sessionError;
+    const initializeApp = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
 
-              setUser(session?.user ?? null);
+        setUser(session?.user ?? null);
 
-              if (session?.user) {
-                await fetchGoals(session.user.id); // Fetch initial goals
-                subscription = setupSubscription(session.user.id); // Setup single subscription
-              }
-            } catch (err) {
-              setError(err.message);
-            } finally {
-              setLoading(false);
-            }
-          };
+        if (session?.user) {
+          await fetchGoals(session.user.id); // Fetch initial goals
+          subscription = setupSubscription(session.user.id); // Setup single subscription
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-          initializeApp();
+    initializeApp();
 
-          return () => {
-            if (subscription) {
-              supabase.removeChannel(subscription); // Cleanup subscription on unmount
-            }
-          };
-        }, []);
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription); // Cleanup subscription on unmount
+      }
+    };
+  }, []);
 
 
-          const addGoal = async (goalData) => {
-                  setError(null);
-                  // Remove setIsLoading(true) from here since it's handled in Sidebar
+  const addGoal = async (goalData) => {
+    setError(null);
+    // Remove setIsLoading(true) from here since it's handled in Sidebar
 
-                  try {
-                    const now = luxon.DateTime.now().setZone('local');
-                    const newGoal = {
-                      ...goalData,
-                      user_id: user.id,
-                      created_at: now.toISO(),
-                      checkups: [],
-                    };
+    try {
+      const now = luxon.DateTime.now().setZone('local');
+      const newGoal = {
+        ...goalData,
+        user_id: user.id,
+        created_at: now.toISO(),
+        checkups: [],
+      };
 
-                    const { data, error } = await supabase
-                      .from('goals')
-                      .insert([newGoal])
-                      .select();
+      const { data, error } = await supabase
+        .from('goals')
+        .insert([newGoal])
+        .select();
 
-                    if (error) throw error;
+      if (error) throw error;
 
-                    // Update local state immediately
-                    if (data?.[0]) {
-                      setGoals(current => [data[0], ...current]);
-                    }
-                  } catch (err) {
-                    setError(`Failed to create goal: ${err.message}`);
-                  }
-                  // Remove setIsLoading(false) from here
-                };
+      // Update local state immediately
+      if (data?.[0]) {
+        setGoals(current => [data[0], ...current]);
+      }
+    } catch (err) {
+      setError(`Failed to create goal: ${err.message}`);
+    }
+    // Remove setIsLoading(false) from here
+  };
 
   const updateGoal = async (goalId, updates) => {
     const originalGoal = goals.find((goal) => goal.id === goalId);
@@ -1666,14 +1666,16 @@
       
 
   <Sidebar
-  goals={goals}
-  onAddGoal={addGoal}
-  onSelectGoal={setSelectedGoal}
-  selectedGoal={selectedGoal}
-  deleteGoal={deleteGoal}
-  updateGoal={updateGoal}
-  setGoals={setGoals}
-  user={user}
+    goals={goals}
+    onAddGoal={addGoal}
+    onSelectGoal={setSelectedGoal}
+    selectedGoal={selectedGoal}
+    deleteGoal={deleteGoal}
+    updateGoal={updateGoal}
+    setGoals={setGoals}
+    user={user}
+    setShowSettings={setShowSettings} 
+
   />
 
   <div className="main-content-container">
@@ -1706,7 +1708,7 @@
                 <button 
               className="theme-toggle" 
               id="darkModeToggle"
-              onClick={toggleDarkMode} // Add this
+              onClick={toggleDarkMode} 
             >
               {isDarkMode ? '🌙' : '☀️'} Theme
             </button>
@@ -1914,7 +1916,8 @@
   selectedGoal, 
   onUpdatePriority, 
   user,
-  setGoals // Add this line
+  setGoals,
+  setShowSettings
   }) => {
 
   const [showNewGoalForm, setShowNewGoalForm] = React.useState(false);
@@ -2198,7 +2201,7 @@ const handleDrop = async (e, targetGoalId) => {
             >
               <button
                 onClick={() => {
-                  setSelectedGoal(contextMenu.goalId);
+                  onSelectGoal(contextMenu.goalId); // Select the goal
                   setShowSettings(true); // Open the settings modal
                 }}
                 className="menu-item"
@@ -2700,7 +2703,7 @@ return (
                             <span className="checkup-date">
                               {luxon.DateTime.fromISO(checkup.date).toLocaleString(luxon.DateTime.TIME_SIMPLE)}:
                             </span>
-                            <span className="checkup-status">{checkup.status}</span>
+                            <span className="checkup-status">{checkup.status}: </span>
                             <span className="checkup-notes">{checkup.notes}</span>
                           </div>
                         ))}
@@ -2942,7 +2945,8 @@ return (
   };
 
 
-  const SettingsModal = ({ goal, onClose, onUpdate, onDelete }) => {
+  const SettingsModal = ({ goal, onClose, onUpdate, onDelete,   setShowSettings={setShowSettings} // Pass setShowSettings here
+ }) => {
     const [title, setTitle] = useState(goal.title);
     const [description, setDescription] = useState(goal.description || '');
     const [frequency, setFrequency] = useState(goal.frequency || 'one-time');
