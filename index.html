@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +28,8 @@
             /* Changed #f5f5f5 → var(--background-color) */
             transition: background-color .3s ease, color 0.3s ease;
             /* Added transition */
+            /*overflow: hidden;  Prevent double scrollbar */
+
         }
 
         body:not(.dark-mode) {
@@ -69,26 +72,46 @@
         .app-container {
             display: flex;
             height: 100vh;
+            padding-top: 50px; /* Match header height */
+
         }
 
         /* ========== SIDEBAR ========== */
         .sidebar {
             width: 320px;
             background-color: var(--background-color);
-            /* Changed #fff → var(--card-bg) */
             border-right: 1px solid var(--border-color);
-            /* Changed #e0e0e0 → var(--border-color) */
             padding: 1.2rem;
             overflow-y: auto;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: fixed;
+            height: calc(100vh - 50px); /* Adjust height to account for header */
+            z-index: 100;
         }
-
+        
+        .sidebar.collapsed {
+            transform: translateX(-320px); /* Move sidebar off-screen */
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .sidebar.overlay {
+          box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+        }
         /* Main content area */
         .main-content {
             flex: 1;
             padding: 1rem;
             overflow-y: auto;
             background-color: var(--card-bg);
-            /* Added for consistency */
+            margin-left: 0px; /* Adjust based on sidebar width */
+            transition: margin-left 0.3s ease;   
+            height: 100%;
+
+        }
+        
+        .main-content-container.full-width {
+          margin-left: 0px;
         }
 
         /* Calendar styles */
@@ -398,14 +421,20 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--background-color);
-            /* Changed #fff → var(--background-color) */
             border-bottom: 1px solid var(--border-color);
-            /* Changed #e0e0e0 → var(--border-color) */
             padding: 0.5rem 1rem;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
+            transition: left 0.3s ease;
         }
+        
+        .sidebar.collapsed + .header {
+          left: 0;
+        }
+        
 
         .header-left {
             display: flex;
@@ -473,8 +502,12 @@
 
         .main-content-container {
             flex: 1;
-            display: flex;
-            flex-direction: column;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            margin-left: 320px; /* Adjust based on sidebar width */
+            transition: margin-left 0.3s ease;
+            height: calc(100vh - 50px); /* Adjust height to account for header */
         }
 
 
@@ -1272,6 +1305,7 @@
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   const setupSubscription = (userId) => {
     return supabase
@@ -1336,6 +1370,10 @@
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+
+  
+
 
   // Handle auth state changes
   useEffect(() => {
@@ -1413,6 +1451,48 @@
     }
   };
 
+
+    useEffect(() => {
+      const handleClickOutside = (e) => {
+        const sidebar = document.querySelector('.sidebar');
+        // Only close the sidebar if the viewMode is 'week'
+        if (viewMode === 'week' && sidebar && !sidebar.contains(e.target)) {
+          setIsSidebarVisible(false);
+        }
+        else if(viewMode === 'month' && sidebar && !sidebar.contains(e.target)){
+          setIsSidebarVisible(true);
+        }
+        else if(viewMode === 'day' && sidebar && !sidebar.contains(e.target)){
+          setIsSidebarVisible(true);
+        }
+      };
+    
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [viewMode]); // Add viewMode as a dependency
+    
+    useEffect(() => {
+      const handleClickOutside = (e) => {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleButton = document.querySelector('[aria-label="Toggle sidebar"]');
+    
+        // Check if the click is outside the sidebar and not on the toggle button
+        if (sidebar && !sidebar.contains(e.target) && (!toggleButton || !toggleButton.contains(e.target))&& viewMode === 'week' ) {
+          setIsSidebarVisible(false); // Close the sidebar only if clicking outside
+        }
+        else if (sidebar && !sidebar.contains(e.target) && (!toggleButton || !toggleButton.contains(e.target))&& viewMode === 'month' ) {
+          setIsSidebarVisible(true); // Close the sidebar only if clicking outside
+        }
+        else if (sidebar && !sidebar.contains(e.target) && (!toggleButton || !toggleButton.contains(e.target))&& viewMode === 'day' ) {
+          setIsSidebarVisible(true); // Close the sidebar only if clicking outside
+        }
+      };
+    
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [viewMode]); // Add viewMode as a dependency
+  
+  
   useEffect(() => {
     let subscription = null;
 
@@ -1646,124 +1726,120 @@
   }
 
   return (
-    <div className="app-container">
-      {error && (
+  <div className="app-container">
+    {error && (
         <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          backgroundColor: '#f44336',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '4px',
-          zIndex: 2000,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#f44336',
+            color: 'white',
+            padding: '1rem',
+            borderRadius: '4px',
+            zIndex: 2000,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}>
-          {error}
+            {error}
         </div>
-      )}
-
-      
-
-  <Sidebar
-    goals={goals}
-    onAddGoal={addGoal}
-    onSelectGoal={setSelectedGoal}
-    selectedGoal={selectedGoal}
-    deleteGoal={deleteGoal}
-    updateGoal={updateGoal}
-    setGoals={setGoals}
-    user={user}
-    setShowSettings={setShowSettings} 
-
-  />
-
-  <div className="main-content-container">
-    {showSettings && selectedGoal && (
-      <SettingsModal
-        goal={goals.find(g => g.id === selectedGoal)}
-        onClose={() => setShowSettings(false)}
-        onUpdate={(updates) => updateGoal(selectedGoal, updates)}
-        onDelete={() => deleteGoal(selectedGoal)}
-      />
     )}
-        <header className="header">
-          <div className="header-left">
-            <button
-              className={currentTab === "overview" ? "active" : ""}
-              onClick={() => setCurrentTab("overview")}
-            >
-              Weekly Overview
-            </button>
-            <button
-              className={currentTab === "calendar" ? "active" : ""}
-              onClick={() => setCurrentTab("calendar")}
-            >
-              Calendar
-            </button>
-          </div>
-          <div className="header-right">
-            
-        
-                <button 
-              className="theme-toggle" 
-              id="darkModeToggle"
-              onClick={toggleDarkMode} 
-            >
-              {isDarkMode ? '🌙' : '☀️'} Theme
-            </button>
-            <span className="user-email">{user.email}</span>
-            <button
-              className="sign-out-button"
-              onClick={async () => {
-                try {
-                  const { error } = await supabase.auth.signOut();
-                  if (error) throw error;
-                  alert('You have successfully signed out.');
-                } catch (err) {
-                  alert(`Sign out failed: ${err.message}`);
-                }
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-        </header>
-
-
-        <main className="main-content">
-          {currentTab === "overview" && <WeeklyOverview goals={goals} />}
-          {currentTab === "calendar" && (
-            <Calendar
-              goals={goals}
-              viewMode={viewMode}
-              onChangeViewMode={setViewMode}
-              currentDate={currentDate}
-              onChangeDate={setCurrentDate}
-              selectedGoal={selectedGoal}
-              onDayClick={(date) => {
-                if (date > luxon.DateTime.now()) return;
-                setQuickForm({ visible: true, date });
-              }}
-              onGearClick={() => setShowSettings(true)}
-              setGoals={setGoals} 
-              user={user}
-            />
-          )}
-        </main>
-      </div>
-
-      {quickForm.visible && selectedGoal && (
-        <QuickForm
-          date={quickForm.date.toISO()}
-          goal={goals.find(g => g.id === selectedGoal)}
-          onSubmit={handleQuickFormSubmit}
-          onClose={() => setQuickForm({ visible: false, date: null })}
+    
+    
+    
+    <div className={`sidebar ${isSidebarVisible ? '' : 'collapsed'}`}>
+        <Sidebar
+            goals={goals}
+            onAddGoal={addGoal}
+            onSelectGoal={setSelectedGoal}
+            selectedGoal={selectedGoal}
+            deleteGoal={deleteGoal}
+            updateGoal={updateGoal}
+            setGoals={setGoals}
+            user={user}
+            setShowSettings={setShowSettings}
         />
-      )}
     </div>
-  );
-  };
+
+    <div className={`main-content-container ${isSidebarVisible ? '' : 'full-width'}`}>
+        <header className="header">
+            <div className="header-left">
+                <button
+                    onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                    aria-label="Toggle sidebar"
+                >
+                    {isSidebarVisible ? '◀' : '▶'} {/* Use icons or text */}
+                </button>
+                <button
+                    className={currentTab === "overview" ? "active" : ""}
+                    onClick={() => setCurrentTab("overview")}
+                >
+                    Weekly Overview
+                </button>
+                <button
+                    className={currentTab === "calendar" ? "active" : ""}
+                    onClick={() => setCurrentTab("calendar")}
+                >
+                    Calendar
+                </button>
+            </div>
+            <div className="header-right">
+                <button 
+                    className="theme-toggle" 
+                    id="darkModeToggle"
+                    onClick={toggleDarkMode} 
+                >
+                    {isDarkMode ? '🌙' : '☀️'} Theme
+                </button>
+                <span className="user-email">{user.email}</span>
+                <button
+                    className="sign-out-button"
+                    onClick={async () => {
+                        try {
+                            const { error } = await supabase.auth.signOut();
+                            if (error) throw error;
+                            alert('You have successfully signed out.');
+                        } catch (err) {
+                            alert(`Sign out failed: ${err.message}`);
+                        }
+                    }}
+                >
+                    Sign Out
+                </button>
+            </div>
+        </header>
+    
+        <main className="main-content">
+            {currentTab === "overview" && <WeeklyOverview goals={goals} />}
+            {currentTab === "calendar" && (
+                <Calendar
+                    goals={goals}
+                    viewMode={viewMode}
+                    onChangeViewMode={setViewMode}
+                    currentDate={currentDate}
+                    onChangeDate={setCurrentDate}
+                    selectedGoal={selectedGoal}
+                    onDayClick={(date) => {
+                        if (date > luxon.DateTime.now()) return;
+                        setQuickForm({ visible: true, date });
+                    }}
+                    onGearClick={() => setShowSettings(true)}
+                    setGoals={setGoals} 
+                    user={user}
+                />
+            )}
+        </main>
+    </div>
+
+    {quickForm.visible && selectedGoal && (
+        <QuickForm
+            date={quickForm.date.toISO()}
+            goal={goals.find(g => g.id === selectedGoal)}
+            onSubmit={handleQuickFormSubmit}
+            onClose={() => setQuickForm({ visible: false, date: null })}
+        />
+    )}
+</div>
+);
+};
 
 
   const Auth = () => {
@@ -1959,7 +2035,7 @@
 
   
 
-  const handleDragStart = (e, goalId) => {
+const handleDragStart = (e, goalId) => {
   e.dataTransfer.setData("text/plain", goalId);
   e.currentTarget.classList.add('dragging');
 };
@@ -2003,7 +2079,7 @@ const handleDrop = async (e, targetGoalId) => {
   // Recalculate priorities based on position
   const goalsWithUpdatedPriorities = updatedGoals.map((goal, index) => ({
     ...goal,
-    priority: updatedGoals.length - index // Higher priority for earlier positions
+    priority: updatedGoals.length - index 
   }));
 
   // Create a copy of the original array for rollback
@@ -2056,6 +2132,7 @@ const handleDrop = async (e, targetGoalId) => {
     setError('Failed to duplicate goal');
   }
   };
+  
   useEffect(() => {
   const handleClickOutside = () => {
     setContextMenu({ visible: false });
@@ -2108,16 +2185,16 @@ const handleDrop = async (e, targetGoalId) => {
         throw new Error('Due date is required');
       }
 
-        const newGoal = {
-            title,
-            description: formData.get("description")?.trim(),
-            frequency: selectedFrequency,
-            type: formData.get("type"),
-            created_at: luxon.DateTime.now().toISO(),
-            checkups: [],
-            dueDate: selectedFrequency === "one-time" ? formData.get("dueDate") : null, 
-            weeklyDays: selectedFrequency === "weekly" ? selectedWeeklyDays : null, 
-        };
+    const newGoal = {
+        title,
+        description: formData.get("description")?.trim(),
+        frequency: selectedFrequency,
+        type: formData.get("type"),
+        created_at: luxon.DateTime.now().toISO(),
+        checkups: [],
+        dueDate: selectedFrequency === "one-time" ? formData.get("dueDate") : null, 
+        weeklyDays: selectedFrequency === "weekly" ? selectedWeeklyDays : null, 
+    };
 
 
 
@@ -2183,7 +2260,6 @@ const handleDrop = async (e, targetGoalId) => {
           {error}
         </div>
       )}
-        // Render the context menu
           {contextMenu.visible && (
             <div
               className="context-menu"
@@ -2209,16 +2285,16 @@ const handleDrop = async (e, targetGoalId) => {
                 Edit Goal
               </button>
               <button
-                onClick={() => deleteGoal(contextMenu.goalId)}
+                onClick={() => placerholder(contextMenu.goalId)}
                 className="menu-item"
               >
-                Delete Goal
+                placeholder
               </button>
               <button
-                onClick={() => duplicateGoal(contextMenu.goalId)}
+                onClick={() => placerholder(contextMenu.goalId)}
                 className="menu-item"
               >
-                Duplicate
+                placeholder
               </button>
             </div>
           )}
@@ -2321,6 +2397,9 @@ const handleDrop = async (e, targetGoalId) => {
             onDragStart={(e) => handleDragStart(e, goal.id)}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
+            onDragLeave={(e) => { // ADD THIS LINE
+                e.currentTarget.style.backgroundColor = ''; // Reset background color
+            }}
             onDrop={(e) => handleDrop(e, goal.id)}
             onContextMenu={(e) => handleContextMenu(e, goal.id)}
           >
@@ -2356,12 +2435,20 @@ const Calendar = ({
 }) => {
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const [weekFilter, setWeekFilter] = useState({ type: 'all', content: 'all' });
-const [scheduledItems, setScheduledItems] = useState({});
-
-const [currentWeekStart, setCurrentWeekStart] = useState(
-  luxon.DateTime.now().startOf('week')
-);
+  const [weekFilter, setWeekFilter] = useState({ type: 'all', content: 'all' });
+  const [scheduledItems, setScheduledItems] = useState({});
+  const [selectedGoalFilter, setSelectedGoalFilter] = useState(null);
+  
+  
+  const goalFilterOptions = goals.map(goal => ({
+    value: goal.id,
+    label: goal.title
+  }));
+  
+  
+  const [currentWeekStart, setCurrentWeekStart] = useState(
+    luxon.DateTime.now().startOf('week')
+  );
 
   const getDaysInView = () => {
       // Convert to user's local timezone
@@ -2383,41 +2470,44 @@ const [currentWeekStart, setCurrentWeekStart] = useState(
   
   
   
-const filteredWeekItems = useMemo(() => {
-  const weekStart = currentWeekStart.startOf('day');
-  const weekEnd = currentWeekStart.plus({ days: 6 }).endOf('day');
-
-  return goals.filter(goal => {
-    // Type filter
-    const typeMatch = weekFilter.type === 'all' || goal.type === weekFilter.type;
-
-    // Content filter
-    let contentMatch = true;
-    if (weekFilter.content !== 'all') {
-      const hasCheckups = goal.checkups && goal.checkups.some(checkup => {
-        const checkupDate = luxon.DateTime.fromISO(checkup.date);
-        return checkupDate >= weekStart && checkupDate <= weekEnd;
-      });
-      const hasDueDate = goal.dueDate && luxon.DateTime.fromISO(goal.dueDate) >= weekStart && luxon.DateTime.fromISO(goal.dueDate) <= weekEnd;
-
-      switch (weekFilter.content) {
-        case 'checkups':
-          contentMatch = hasCheckups;
-          break;
-        case 'due-dates':
-          contentMatch = hasDueDate;
-          break;
-        case 'both':
-          contentMatch = hasCheckups || hasDueDate;
-          break;
-        default:
-          contentMatch = true;
+  const filteredWeekItems = useMemo(() => {
+    const weekStart = currentWeekStart.startOf('day');
+    const weekEnd = currentWeekStart.plus({ days: 6 }).endOf('day');
+  
+    return goals.filter(goal => {
+      // Type filter
+      const typeMatch = weekFilter.type === 'all' || goal.type === weekFilter.type;
+  
+      // Content filter
+      let contentMatch = true;
+      if (weekFilter.content !== 'all') {
+        const hasCheckups = goal.checkups && goal.checkups.some(checkup => {
+          const checkupDate = luxon.DateTime.fromISO(checkup.date);
+          return checkupDate >= weekStart && checkupDate <= weekEnd;
+        });
+        const hasDueDate = goal.dueDate && luxon.DateTime.fromISO(goal.dueDate) >= weekStart && luxon.DateTime.fromISO(goal.dueDate) <= weekEnd;
+  
+        switch (weekFilter.content) {
+          case 'checkups':
+            contentMatch = hasCheckups;
+            break;
+          case 'due-dates':
+            contentMatch = hasDueDate;
+            break;
+          case 'both':
+            contentMatch = hasCheckups || hasDueDate;
+            break;
+          default:
+            contentMatch = true;
+        }
       }
-    }
-
-    return typeMatch && contentMatch;
-  });
-}, [goals, weekFilter, currentWeekStart]);
+  
+      // Selected goal filter
+      const goalMatch = selectedGoalFilter ? goal.id === selectedGoalFilter : true;
+  
+      return typeMatch && contentMatch && goalMatch;
+    });
+  }, [goals, weekFilter, currentWeekStart, selectedGoalFilter]);
   
   
   const isDueOnDay = (goal, day) => {
@@ -2642,7 +2732,18 @@ return (
             <option value="due-dates">Due Dates Only</option>
             <option value="both">Checkups & Due Dates</option>
           </select>
-          
+        
+          <select 
+            value={selectedGoalFilter || ''}
+            onChange={e => setSelectedGoalFilter(e.target.value || null)}
+          >
+            <option value="">All Goals</option>
+            {goalFilterOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         
         <div className="week-navigation">
@@ -2719,48 +2820,48 @@ return (
 
     {/* Day View */}
     {viewMode === 'day' && (
-      <div className="day-view">
-        <div className="timeline">
-          {Array.from({ length: 24 }).map((_, hour) => {
-            const time = luxon.DateTime.now().set({ hour, minute: 0 });
-            const scheduledItems = goals.filter(goal => {
-              if (!goal.scheduledTime) return false;
-              const goalTime = luxon.DateTime.fromISO(goal.scheduledTime);
-              return goalTime.hour === hour;
-            });
-          
-            return (
-              <div 
-                key={hour}
-                className="time-slot"
-                onDragOver={e => e.preventDefault()}
-                onDrop={e => handleDrop(e, hour)}
-              >
-                <div className="hour-label">
-                  {time.toFormat('h a')}
-                </div>
-                <div className="scheduled-items">
-                  {scheduledItems.map(item => (
-                    <div 
-                      key={item.id}
-                      className={`scheduled-item goal-type-${item.type}`}
-                      draggable
-                      onDragStart={e => handleDragStart(e, item)}
-                    >
-                      <div className="item-content">
-                        <span className="item-time">
-                          {luxon.DateTime.fromISO(item.scheduledTime).toFormat('h:mm a')}
-                        </span>
-                        <span className="item-title">{item.title}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+    <div className="day-view">
+      <div className="timeline">
+        {Array.from({ length: 24 }).map((_, hour) => {
+          const time = luxon.DateTime.now().set({ hour, minute: 0 });
+          const scheduledItems = goals.filter(goal => {
+            if (!goal.scheduledTime) return false;
+            const goalTime = luxon.DateTime.fromISO(goal.scheduledTime);
+            return goalTime.hour === hour;
+          });
+        
+          return (
+            <div 
+              key={hour}
+              className="time-slot"
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => handleDrop(e, hour)}
+            >
+              <div className="hour-label">
+                {time.toFormat('h a')}
               </div>
-            );
-          })}
-        </div>
+              <div className="scheduled-items">
+                {scheduledItems.map(item => (
+                  <div 
+                    key={item.id}
+                    className={`scheduled-item goal-type-${item.type}`}
+                    draggable
+                    onDragStart={e => handleDragStart(e, item)}
+                  >
+                    <div className="item-content">
+                      <span className="item-time">
+                        {luxon.DateTime.fromISO(item.scheduledTime).toFormat('h:mm a')}
+                      </span>
+                      <span className="item-title">{item.title}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
+    </div>
     )}
   </div>
 );
