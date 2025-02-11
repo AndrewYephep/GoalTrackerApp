@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -502,7 +503,8 @@
 
         .main-content-container {
             flex: 1;
-            padding: 1rem;
+            padding-left: 1rem;
+            padding-top: 1rem;
             overflow-y: auto;
             background-color: var(--card-bg);
             margin-left: 320px; /* Adjust based on sidebar width */
@@ -1452,24 +1454,7 @@
   };
 
 
-    useEffect(() => {
-      const handleClickOutside = (e) => {
-        const sidebar = document.querySelector('.sidebar');
-        // Only close the sidebar if the viewMode is 'week'
-        if (viewMode === 'week' && sidebar && !sidebar.contains(e.target)) {
-          setIsSidebarVisible(false);
-        }
-        else if(viewMode === 'month' && sidebar && !sidebar.contains(e.target)){
-          setIsSidebarVisible(true);
-        }
-        else if(viewMode === 'day' && sidebar && !sidebar.contains(e.target)){
-          setIsSidebarVisible(true);
-        }
-      };
     
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [viewMode]); // Add viewMode as a dependency
     
     useEffect(() => {
       const handleClickOutside = (e) => {
