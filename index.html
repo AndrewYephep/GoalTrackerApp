@@ -82,7 +82,7 @@
             width: 320px;
             background-color: var(--background-color);
             border-right: 1px solid var(--border-color);
-            padding: 1.2rem;
+            padding: 2.3rem 1.2rem 1.2rem 1.2rem;
             overflow-y: auto;
             transition: transform 0.3s ease, opacity 0.3s ease;
             position: fixed;
@@ -94,6 +94,12 @@
             transform: translateX(-320px); /* Move sidebar off-screen */
             opacity: 0;
             pointer-events: none;
+        }
+        
+        .sidebar.opened {
+          /*this is just a filler css to fix the rerendering of the sidebar*/
+          padding: 0rem;
+          
         }
         
         .sidebar.overlay {
@@ -503,7 +509,7 @@
 
         .main-content-container {
             flex: 1;
-            padding-left: 1rem;
+            padding-left: 0rem;
             padding-top: 1rem;
             overflow-y: auto;
             background-color: var(--card-bg);
@@ -1730,7 +1736,7 @@
     
     
     
-    <div className={`sidebar ${isSidebarVisible ? '' : 'collapsed'}`}>
+    <div className={`sidebar ${isSidebarVisible ? 'opened' : 'collapsed'}`}>
         <Sidebar
             goals={goals}
             onAddGoal={addGoal}
@@ -2404,7 +2410,7 @@ const handleDrop = async (e, targetGoalId) => {
         ))}
     </div>
   );
-  };
+};
    
 const Calendar = ({ 
   goals, 
