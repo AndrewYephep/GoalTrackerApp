@@ -32,7 +32,20 @@
             /*overflow: hidden;  Prevent double scrollbar */
 
         }
-
+        
+        :root {
+          /* Light Mode Colors */
+          --primary-color: #2563eb; /* Blue */
+          --primary-color-hover: #1d4ed8;
+          --secondary-color: #e2e8f0; /* Light gray */
+          --secondary-color-hover: #cbd5e1;
+          --background-color: #ffffff;
+          --card-bg: #f8fafc;
+          --text-color: #1e293b;
+          --secondary-text: #64748b;
+          --border-color: #e2e8f0;
+        }
+        
         body:not(.dark-mode) {
             --background-color: #ffffff;
             --text-color: #1a1a1a;
@@ -48,17 +61,12 @@
             --homework-text: #4a148c;
             --project-bg: #e8f5e9;
             --project-text: #1b5e20;
+            
+            
         }
-
-
-
+        
         body.dark-mode {
-            --background-color: #1a1a1a;
-            --text-color: #ffffff;
-            --card-bg: #303030;
-            --border-color: #404040;
             --hover-bg: #5d5b5b;
-            --secondary-text: #888888;
             --button-color: #404040;
             --button-color-hover: #5d5b5b;
             --goal-bg: #0d47a133;
@@ -67,6 +75,15 @@
             --homework-text: #ce93d8;
             --project-bg: #1b5e2033;
             --project-text: #a5d6a7;
+            --primary-color: #3b82f6; /* Blue */
+            --primary-color-hover: #2563eb;
+            --secondary-color: #334155; /* Dark gray */
+            --secondary-color-hover: #475569;
+            --background-color: #1e293b;
+            --card-bg: #303030;
+            --text-color: #f8fafc;
+            --secondary-text: #94a3b8;
+            --border-color: #475569;
         }
 
         /* Layout */
@@ -181,12 +198,13 @@
             border-radius: 4px;
             padding: 1rem;
             margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: transform 0.2s;
+            cursor: grab;
+            transition: all 0.2s ease;
         }
 
         .goal-item:hover {
-            transform: translateX(4px);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .goal-item.selected {
@@ -194,7 +212,22 @@
             background-color: var(--hover-bg);
             /* Changed #f8f9fa → var(--hover-bg) */
         }
-
+        
+        .triple-dot-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 1.2rem;
+          color: var(--text-color);
+          padding: 0.25rem;
+          margin-left: auto; /* Push to the right */
+          opacity: 0; /* Hidden by default */
+          transition: opacity 0.2s ease;
+        }
+        
+        .goal-item:hover .triple-dot-button {
+          opacity: 1; /* Show on hover */
+        }
 
         /* Status colors */
         .status-done {
@@ -311,18 +344,51 @@
 
         button {
             background-color: var(--button-color);
-            border: 1px solid var(--border-color);
-            /* Added border */
             padding: 0.5rem 1rem;
-            border-radius: 4px;
             cursor: pointer;
             margin: 0.25rem;
             color: var(--text-color)
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         button:hover {
             background-color: var(--hover-bg);
             /* Changed #dee2e6 → new variable */
+        }
+        
+        /* Primary Button */
+        button.primary {
+          background-color: var(--primary-color);
+          color: white;
+        }
+        
+        button.primary:hover {
+          background-color: var(--primary-color-hover);
+        }
+        
+        /* Secondary Button */
+        button.secondary {
+          background-color: var(--secondary-color);
+          color: var(--text-color);
+          border: 1px solid var(--border-color);
+        }
+        
+        button.secondary:hover {
+          background-color: var(--secondary-color-hover);
+        }
+        
+        /* Danger Button (e.g., Delete) */
+        button.danger {
+          background-color: #f44336;
+          color: white;
+        }
+        
+        button.danger:hover {
+          background-color: #d32f2f;
         }
 
         .calendar-days-of-week {
@@ -818,9 +884,66 @@
         }
 
         .settings-modal {
-            z-index: 300;
-            /* Same as quick-form */
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          padding: 2rem;
+          width: 90%;
+          max-width: 500px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+          backdrop-filter: blur(10px); /* Glass-morphism effect */
         }
+        
+        .settings-modal h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
+          color: var(--text-color);
+        }
+        
+        .settings-modal .form-group {
+          margin-bottom: 1.5rem;
+        }
+        
+        .settings-modal label {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+          color: var(--text-color);
+        }
+        
+        .settings-modal input,
+        .settings-modal textarea,
+        .settings-modal select {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          background: var(--background-color);
+          color: var(--text-color);
+          font-size: 0.9rem;
+          transition: border-color 0.2s ease;
+        }
+        
+        .settings-modal input:focus,
+        .settings-modal textarea:focus,
+        .settings-modal select:focus {
+          border-color: var(--primary-color);
+          outline: none;
+        }
+        
+        .settings-modal .button-group {
+          display: flex;
+          gap: 1rem;
+          margin-top: 2rem;
+        }
+
 
         /* ============ Dark Mode Toggle ============ */
         .theme-toggle {
@@ -863,22 +986,20 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .goal-item {
-            transition: all 0.2s ease;
-            cursor: grab;
-        }
 
         .goal-item.dragging {
             cursor: grabbing;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
+        /* Priority Badge */
         .priority-badge {
-            background: var(--button-color);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: auto;
+          background: var(--primary-color);
+          color: white;
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: 500;
         }
 
         .goal-content {
@@ -906,11 +1027,7 @@
           color: var(--project-text);
         }
         
-        .priority-badge {
-          background-color: var(--button-color) !important;
-          color: var(--text-color) !important;
-          border: 1px solid var(--border-color);
-        }
+        
         
 
         .status-missed {
@@ -1172,8 +1289,8 @@
                 
 
         .goal-title {
-          font-weight: bold;
-          margin-bottom: 0.5rem;
+          font-size: 1.1rem;
+          font-weight: 600;
           color: var(--text-color);
         }
         
@@ -1184,6 +1301,11 @@
           border-radius: 4px;
         }
         
+        .goal-due-date {
+          font-size: 0.9rem;
+          color: var(--secondary-text);
+        }
+                
         .checkup {
           font-size: 0.8rem;
           margin-bottom: 0.25rem;
@@ -1314,7 +1436,13 @@
     return localStorage.getItem('darkMode') === 'true';
   });
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-
+  const [contextMenu, setContextMenu] = useState({
+      visible: false,
+      x: 0,
+      y: 0,
+      goalId: null
+    });
+  
   const setupSubscription = (userId) => {
     return supabase
       .channel(`goals:${userId}`)
@@ -1350,6 +1478,7 @@
       .subscribe();
   };
 
+
   const reconnectToSupabase = async () => {
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -1365,6 +1494,21 @@
     }
   };
 
+  const handleContextMenu = (e, goalId) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      goalId: goalId,
+    });
+  };
+  
+  const handleEditClick = (goalId) => {
+    setSelectedGoal(goalId); // Select the goal
+    setShowSettings(true); // Open the settings modal
+  };
+  
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -1734,19 +1878,27 @@
         </div>
     )}
     
-    
+    {showSettings && selectedGoal && (
+      <SettingsModal
+        goal={goals.find(g => g.id === selectedGoal)}
+        onClose={() => setShowSettings(false)}
+        onUpdate={(updates) => updateGoal(selectedGoal, updates)}
+        onDelete={() => deleteGoal(selectedGoal)}
+      />
+    )}
     
     <div className={`sidebar ${isSidebarVisible ? 'opened' : 'collapsed'}`}>
         <Sidebar
-            goals={goals}
-            onAddGoal={addGoal}
-            onSelectGoal={setSelectedGoal}
-            selectedGoal={selectedGoal}
-            deleteGoal={deleteGoal}
-            updateGoal={updateGoal}
-            setGoals={setGoals}
-            user={user}
-            setShowSettings={setShowSettings}
+          goals={goals} // Pass the list of goals
+          onAddGoal={addGoal} // Pass the function to add a new goal
+          onSelectGoal={setSelectedGoal} // Pass the function to select a goal
+          selectedGoal={selectedGoal} // Pass the currently selected goal
+          deleteGoal={deleteGoal} // Pass the function to delete a goal
+          updateGoal={updateGoal} // Pass the function to update a goal
+          setGoals={setGoals} // Pass the function to update the goals state
+          user={user} // Pass the current user
+          setShowSettings={setShowSettings} // Pass the function to show/hide the settings modal
+          onContextMenu={handleContextMenu} // Pass the context menu handler
         />
     </div>
 
@@ -1984,7 +2136,8 @@
   onUpdatePriority, 
   user,
   setGoals,
-  setShowSettings
+  setShowSettings,
+  onContextMenu
   }) => {
 
   const [showNewGoalForm, setShowNewGoalForm] = React.useState(false);
@@ -2136,10 +2289,10 @@ const handleDrop = async (e, targetGoalId) => {
 
 
   const [contextMenu, setContextMenu] = useState({
-  visible: false,
-  x: 0,
-  y: 0,
-  goalId: null
+    visible: false,
+    x: 0,
+    y: 0,
+    goalId: null
   });
 
   const handleContextMenu = (e, goalId) => {
@@ -2148,9 +2301,10 @@ const handleDrop = async (e, targetGoalId) => {
       visible: true,
       x: e.clientX,
       y: e.clientY,
-      goalId
+      goalId: goalId,
     });
   };
+
   const daysUntilDue = () => {
     if (!goal.dueDate) return null;
     const due = luxon.DateTime.fromISO(goal.dueDate);
@@ -2158,6 +2312,12 @@ const handleDrop = async (e, targetGoalId) => {
     return Math.ceil(due.diff(now, 'days').days);
   };
 
+
+  const handleEditClick = (goalId) => {
+    onSelectGoal(goalId); // Select the goal
+    setShowSettings(true); // Open the settings modal
+  };
+  
   const handleNewGoal = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -2262,30 +2422,35 @@ const handleDrop = async (e, targetGoalId) => {
                 border: '1px solid var(--border-color)',
                 borderRadius: '4px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                zIndex: 1000
+                zIndex: 1000,
               }}
-              onClick={() => setContextMenu({ visible: false })}
             >
               <button
                 onClick={() => {
-                  onSelectGoal(contextMenu.goalId); // Select the goal
-                  setShowSettings(true); // Open the settings modal
+                  handleEditClick(contextMenu.goalId);
+                  setContextMenu({ visible: false });
                 }}
                 className="menu-item"
               >
-                Edit Goal
+                Edit
               </button>
               <button
-                onClick={() => placerholder(contextMenu.goalId)}
+                onClick={() => {
+                  console.log('Duplicate', contextMenu.goalId);
+                  setContextMenu({ visible: false });
+                }}
                 className="menu-item"
               >
-                placeholder
+                Duplicate
               </button>
               <button
-                onClick={() => placerholder(contextMenu.goalId)}
+                onClick={() => {
+                  deleteGoal(contextMenu.goalId);
+                  setContextMenu({ visible: false });
+                }}
                 className="menu-item"
               >
-                placeholder
+                Delete
               </button>
             </div>
           )}
@@ -2380,11 +2545,7 @@ const handleDrop = async (e, targetGoalId) => {
               selectedGoal === goal.id ? 'selected' : ''
             }`}
             onClick={() => onSelectGoal(goal.id)}
-            onDoubleClick={() => {
-              setSelectedGoal(goal.id);
-              setShowSettings(true); // Open the settings modal
-            }}
-            draggable
+            onDoubleClick={() => handleEditClick(goal.id)}
             onDragStart={(e) => handleDragStart(e, goal.id)}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
@@ -2396,10 +2557,21 @@ const handleDrop = async (e, targetGoalId) => {
           >
             <div className="goal-content">
               <h3>{goal.title}</h3>
+              <button
+                className="triple-dot-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditClick(goal.id);
+                }}
+                aria-label="Open context menu"
+              >
+                ⋮
+              </button>
               <div className="priority-control">
                 <span className="priority-badge">Priority: {goal.priority}</span>
               </div>
             </div>
+            
             {goal.type && <p>Type: {goal.type}</p>}
             {goal.dueDate && (
               <span className={'text-red-600 font-semibold' }>
@@ -3096,7 +3268,7 @@ return (
     return (
         <>
             <div className="overlay" onClick={onClose}></div>
-            <div className="quick-form settings-modal">
+            <div className="settings-modal">
                 <h3>Edit Goal</h3>
 
                 {error && (
