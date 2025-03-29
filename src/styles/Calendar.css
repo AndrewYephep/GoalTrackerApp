@@ -1,0 +1,105 @@
+.calendar-day {
+    position: relative;
+    min-height: 80px; /* Ensure space for reminders */
+}
+
+.reminder-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: calc(100% - 24px);
+    overflow-y: auto;
+}
+
+.reminder-tag {
+    font-size: 0.75em;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reminder-tag.one-time {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.reminder-tag.daily {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.reminder-tag.weekly {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.error-message {
+    color: #dc2626;
+    background-color: #fee2e2;
+    padding: 8px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.reminder-card {
+    background-color: var(--reminder-modal-bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reminder-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.reminder-card-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--reminder-modal-text);
+}
+
+.reminder-card-body {
+    font-size: 0.9em;
+}
+
+.frequency-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 8px;
+}
+
+.created-at {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+}
+
+.edit-button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background-color: var(--button-secondary-hover);
+}
+
