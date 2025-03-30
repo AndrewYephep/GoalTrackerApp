@@ -1549,7 +1549,7 @@ button {
 /* Weekly Overview Styles */
 .weekly-overview {
     padding: 20px;
-    background-color: var(--card-bg);
+    background-color: var(--background-color);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
