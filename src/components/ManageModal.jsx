@@ -3,13 +3,18 @@ import { DateTime } from 'luxon';
 import SettingsModal from './SettingsModal';
 import ReminderUpdateModal from './ReminderUpdateModal';
 
-const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
+const ManageModal = ({ type, goals, setGoals, onClose, user, reminders, setReminders }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showReminderUpdate, setShowReminderUpdate] = useState(false);
 
-  // Ensure reminders array exists and add type property
-  const processedReminders = (reminders || []).map(r => ({ ...r, type: 'reminder' }));
+  const processedReminders = (reminders || []).map(r => ({
+    ...r,
+    type: 'reminder',
+    dueDate: r.reminder_date || r.dueDate
+  }));
+  console.log("ManageModal - received reminders:", reminders);
+  console.log("ManageModal - processedReminders:", processedReminders);
   
   const filteredItems = type === 'all' 
     ? [...goals, ...processedReminders]
@@ -26,6 +31,30 @@ const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
     setSelectedItem(item);
   };
 
+  const handleItemUpdate = (updatedItem) => {
+    if (!updatedItem) {
+      // Handle deletion
+      if (selectedItem.type === 'reminder') {
+        setReminders(prev => prev.filter(r => r.id !== selectedItem.id));
+      } else {
+        setGoals(prev => prev.filter(g => g.id !== selectedItem.id));
+      }
+      setSelectedItem(null);
+      setShowSettings(false);
+      setShowReminderUpdate(false);
+    } else {
+      // Handle update
+      if (updatedItem.type === 'reminder') {
+        setReminders(prev => prev.map(r => r.id === updatedItem.id ? updatedItem : r));
+      } else {
+        setGoals(prev => prev.map(g => g.id === updatedItem.id ? updatedItem : g));
+      }
+      setSelectedItem(null);
+      setShowSettings(false);
+      setShowReminderUpdate(false);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="manage-modal" onClick={(e) => e.stopPropagation()}>
@@ -35,41 +64,47 @@ const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
         </div>
         
         <div className="manage-items-grid">
-          {filteredItems.map(item => (
-            <div 
-              key={item.id} 
-              className={`manage-card ${item.type}`}
-            >
-              <div className="manage-card-header">
-                <h3>{item.title}</h3>
-                <span className="manage-card-type">{item.type}</span>
+          {filteredItems.length > 0 ? (
+            filteredItems.map(item => (
+              <div 
+                key={item.id} 
+                className={`manage-card ${item.type}`}
+              >
+                <div className="manage-card-header">
+                  <h3>{item.title}</h3>
+                  <span className="manage-card-type">{item.type}</span>
+                </div>
+                
+                <p className="manage-card-description">{item.description}</p>
+                
+                <div className="manage-card-footer">
+                  {item.type === 'reminder' ? (
+                    <span className="manage-card-date">
+                      {item.frequency === 'one-time' && item.dueDate ? (
+                        `Due: ${DateTime.fromISO(item.dueDate).toFormat('LLL dd, yyyy HH:mm')}`
+                      ) : (
+                        `Frequency: ${item.frequency}`
+                      )}
+                    </span>
+                  ) : item.dueDate && (
+                    <span className="manage-card-date">
+                      Due: {DateTime.fromISO(item.dueDate).toFormat('LLL dd, yyyy')}
+                    </span>
+                  )}
+                  <button 
+                    className="edit-button"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
-              
-              <p className="manage-card-description">{item.description}</p>
-              
-              <div className="manage-card-footer">
-                {item.type === 'reminder' ? (
-                  <span className="manage-card-date">
-                    {item.frequency === 'one-time' && item.reminder_date ? (
-                      `Due: ${DateTime.fromISO(item.reminder_date).toFormat('LLL dd, yyyy HH:mm')}`
-                    ) : (
-                      `Frequency: ${item.frequency}`
-                    )}
-                  </span>
-                ) : item.dueDate && (
-                  <span className="manage-card-date">
-                    Due: {DateTime.fromISO(item.dueDate).toFormat('LLL dd, yyyy')}
-                  </span>
-                )}
-                <button 
-                  className="edit-button"
-                  onClick={() => handleEdit(item)}
-                >
-                  Edit
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="empty-message">
+              There is nothing here. Please create a {type === 'all' ? 'item' : type} in the sidebar.
+            </p>
+          )}
         </div>
 
         {showSettings && selectedItem && (
@@ -80,13 +115,7 @@ const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
               setSelectedItem(null);
             }}
             goal={selectedItem}
-            onUpdate={(updatedItem) => {
-              setGoals(prevGoals => 
-                prevGoals.map(g => g.id === updatedItem.id ? updatedItem : g)
-              );
-              setShowSettings(false);
-              setSelectedItem(null);
-            }}
+            onUpdate={handleItemUpdate}
             type={selectedItem.type}
           />
         )}
@@ -98,17 +127,7 @@ const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
               setShowReminderUpdate(false);
               setSelectedItem(null);
             }}
-            onUpdate={(updatedReminder) => {
-              // Update reminders instead of goals for reminder items
-              if (updatedReminder.type === 'reminder') {
-                const reminderUpdateEvent = new CustomEvent('reminderUpdate', {
-                  detail: updatedReminder
-                });
-                window.dispatchEvent(reminderUpdateEvent);
-              }
-              setShowReminderUpdate(false);
-              setSelectedItem(null);
-            }}
+            onUpdate={handleItemUpdate}
             user={user}
           />
         )}
@@ -117,4 +136,4 @@ const ManageModal = ({ type, goals, setGoals, onClose, user, reminders }) => {
   );
 };
 
-export { ManageModal as default };
+export default ManageModal;

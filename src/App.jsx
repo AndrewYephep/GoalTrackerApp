@@ -148,7 +148,24 @@ function App() {
         supabaseClient.removeChannel(subscription)
       }
     }
-  }, [user])
+  }, [user]);
+
+  useEffect(() => {
+    const loadUserReminders = async () => {
+      if (!user) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('reminders')
+          .select('*')
+          .eq('user_id', user.id);
+        if (error) throw error;
+        setReminders(data);
+      } catch (err) {
+        console.error('Error loading reminders:', err);
+      }
+    };
+    loadUserReminders();
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -221,6 +238,7 @@ function App() {
         onReminderCreated={handleReminderCreated}
         setShowGoalCreationSidebar={setShowGoalCreationSidebar}
         user={user}  // Add user prop here
+        reminders={reminders} // Added to pass reminders to Sidebar
       />
       <div className={`main-content ${isSidebarCollapsed ? 'full-width' : ''}`}>
         {currentTab === 'overview' ? (

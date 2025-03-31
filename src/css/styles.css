@@ -608,65 +608,79 @@ button {
     z-index: 1005;
 }
 
-.modal-content {
+/* Updated Modal Styles */
+.modal-content,
+.manage-modal,
+.goal-creation-sidebar,
+.checkup-modal,
+.quick-form,
+.reminder-creation-modal {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--card-bg);
+    top: 75px; /* Match header height */
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    height: calc(100vh - 75px); /* Subtract header height */
+    transform: none;
+    left: auto;
+    border-radius: 0;
+    border-left: 1px solid var(--border-color);
     padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    max-height: calc(90vh - 100px); /* Adjusted max-height to fit within the viewport */
-    overflow-y: auto; /* Allow scrolling if content exceeds max-height */
+    background-color: var(--card-bg);
+    overflow-y: auto;
     z-index: 1006;
-    box-shadow: 0 4px 6px rgb(0, 0, 0);
+    box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
 }
 
-.setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* Quick Form styles */
-.quick-form {
+/* Specific width for manage modal */
+.manage-modal {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--card-bg);
+    top: 75px;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    height: calc(100vh - 75px);
+    transform: none;
+    left: auto;
+    border-radius: 0;
+    border-left: 1px solid var(--border-color);
     padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-bg);
+    overflow-y: auto;
+    z-index: 1006;
+    box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+    max-height: none;
 }
 
-.quick-form form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+/* Remove old modal positioning styles */
+.checkup-modal {
+    top: 75px;
+    left: auto;
+    transform: none;
+    max-width: none;
 }
 
-.quick-form input,
-.quick-form select {
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--background-color);
-    color: var(--text-color);
+.goal-creation-sidebar {
+    top: 75px;
+    left: auto;
+    transform: none;
+    max-width: none;
 }
 
-.button-group {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    margin-top: 1rem;
+.new-goal-form {
+    position: fixed;
+    max-width: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 
 /* Weekly Overview styles */
@@ -781,7 +795,7 @@ button {
 }
 
 .new-goal-form {
-    position: relative; /* Change from fixed to relative */
+    position: fixed;
     background-color: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
@@ -1165,9 +1179,10 @@ button {
 
 .checkup-modal {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 75px;
+    left: auto;
+    transform: none;
+    max-width: none;
     background-color: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
@@ -1223,12 +1238,21 @@ button {
 
 .close-button {
     margin-top: 1rem;
-    width: 100%;
-    padding: 0.75rem;
+    width: fit-content;
+    padding-left: .4rem;
+    padding-right: .4rem;
+    padding-bottom: 0rem;
+    padding-top: 0rem;
+    color: var(--text-color);
+    font-size: 2rem;
     background-color: var(--button-color);
     border: none;
     border-radius: 6px;
     cursor: pointer;
+}
+
+close-button:hover{
+    color: red;
 }
 
 .search-input {
@@ -1358,9 +1382,10 @@ button {
 
 .goal-creation-sidebar {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 75px;
+    left: auto;
+    transform: none;
+    max-width: none;
     background-color: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
@@ -1732,16 +1757,23 @@ body:not(.dark-mode) {
 
 /* Manage Modal Styles */
 .manage-modal {
-    position: relative;
-    background-color: var(--card-bg);
+    position: fixed;
+    top: 75px;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    height: calc(100vh - 75px);
+    transform: none;
+    left: auto;
+    border-radius: 0;
+    border-left: 1px solid var(--border-color);
     padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 80vh;
+    background-color: var(--card-bg);
     overflow-y: auto;
-    z-index: 1001;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 1006;
+    box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+    max-height: none;
 }
 
 .manage-modal-header {
