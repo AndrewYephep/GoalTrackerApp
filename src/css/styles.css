@@ -614,7 +614,7 @@ button {
 .goal-creation-sidebar,
 .checkup-modal,
 .quick-form,
-.reminder-creation-modal {
+.reminder-creation-modal{
     position: fixed;
     top: 75px; /* Match header height */
     right: 0;
@@ -632,6 +632,67 @@ button {
     box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease-out;
 }
+
+/* Permission Modal specific styles */
+.permission-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    max-width: 90%; /* Ensure it doesn't exceed screen width */
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1010;
+}
+
+.permission-modal h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.permission-modal p {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+
+
+  
+  .delete-confirm-modal .warning {
+    color: #ef4444;
+    margin: 1rem 0;
+  }
+  
+  .delete-confirm-modal .button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+  
+  .delete-confirm-modal .delete-button {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .delete-confirm-modal .cancel-button {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+  }
+  
+  .delete-button {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background: #dc2626;
+  }
 
 /* Specific width for manage modal */
 .manage-modal {

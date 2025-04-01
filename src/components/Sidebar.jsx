@@ -326,7 +326,7 @@ const Sidebar = ({
           <GoalCreationSidebar 
             onClose={() => setShowGoalCreation(false)}
             onGoalCreated={(newGoal) => {
-              setGoals([...goals, newGoal]);
+              // Remove the manual state update since it will be handled by the subscription
               setShowGoalCreation(false);
             }}
             type={type}
@@ -340,10 +340,18 @@ const Sidebar = ({
           onClose={() => setShowSettingsModal(false)}
           goal={selectedGoal}
           onUpdate={(updatedGoal) => {
-            setGoals(prevGoals => 
-              prevGoals.map(g => g.id === updatedGoal.id ? updatedGoal : g)
-            )
-            onSelectGoal(updatedGoal)
+            if (updatedGoal.deleted) {
+              // Handle deletion
+              setGoals(prevGoals => prevGoals.filter(g => g.id !== updatedGoal.id));
+              onSelectGoal(null);
+            } else {
+              // Handle update
+              setGoals(prevGoals => 
+                prevGoals.map(g => g.id === updatedGoal.id ? updatedGoal : g)
+              );
+              onSelectGoal(updatedGoal);
+            }
+            setShowSettingsModal(false);
           }}
           type={type}
         />

@@ -15,12 +15,12 @@ const SettingsModal = ({ isOpen, onClose, goal, onUpdate, type = 'goal' }) => {
 
   useEffect(() => {
     if (goal) {
-      setTitle(goal.title)
-      setDescription(goal.description)
-      setFrequency(goal.frequency)
-      setWeeklyDays(goal.weeklyDays)
-      setPriority(goal.priority)
-      setDueDate(goal.dueDate)
+      setTitle(goal.title || '')
+      setDescription(goal.description || '')
+      setFrequency(goal.frequency || 'one-time')
+      setWeeklyDays(goal.weeklyDays || [])
+      setPriority(goal.priority || 0)
+      setDueDate(goal.dueDate || '')
     }
   }, [goal])
 
@@ -65,7 +65,8 @@ const SettingsModal = ({ isOpen, onClose, goal, onUpdate, type = 'goal' }) => {
 
       if (error) throw error
       onClose()
-      onUpdate(null)
+      // Pass the deleted goal's id instead of null
+      onUpdate({ id: goal.id, deleted: true })
     } catch (err) {
       setError(err.message)
     }
@@ -96,7 +97,7 @@ const SettingsModal = ({ isOpen, onClose, goal, onUpdate, type = 'goal' }) => {
               <input
                 id="title"
                 type="text"
-                value={title}
+                value={title || ''} // Add fallback empty string
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={isSubmitting}
               />
@@ -105,7 +106,7 @@ const SettingsModal = ({ isOpen, onClose, goal, onUpdate, type = 'goal' }) => {
               <label htmlFor="description">Description</label>
               <textarea
                 id="description"
-                value={description}
+                value={description || ''} // Add fallback empty string
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isSubmitting}
               />
@@ -163,7 +164,7 @@ const SettingsModal = ({ isOpen, onClose, goal, onUpdate, type = 'goal' }) => {
               <input
                 id="dueDate"
                 type="date"
-                value={dueDate}
+                value={dueDate || ''} // Add fallback empty string
                 onChange={(e) => setDueDate(e.target.value)}
                 disabled={isSubmitting}
               />

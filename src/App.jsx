@@ -122,7 +122,13 @@ function App() {
           // Handle different types of changes
           switch (payload.eventType) {
             case 'INSERT':
-              setGoals(current => [...current, payload.new])
+              // Check if goal already exists before adding
+              setGoals(current => {
+                if (current.some(goal => goal.id === payload.new.id)) {
+                  return current;
+                }
+                return [...current, payload.new];
+              });
               break
             case 'UPDATE':
               setGoals(current => 
