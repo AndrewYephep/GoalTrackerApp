@@ -1,0 +1,86 @@
+/* src/css/mobile.css */
+
+/* Target screens smaller than 768px (typical mobile devices) */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column; /* Stack header, sidebar, and main content */
+    padding-top: 60px; /* Adjust padding for the header */
+  }
+
+  .header {
+   overflow-x: scroll;
+    padding: 0.5rem;
+  }
+
+  .sidebar {
+    width: 40%; 
+    min-width: 20rem;
+    position: fixed; /* No longer fixed */
+    height: auto; /* Adjust height */
+    border-bottom: 1px solid var(--border-color); /* Add bottom border */
+    padding: 1rem;
+  
+  }
+
+  .main-content {
+    margin-left: 0; /* Remove left margin */
+    width: 100%; /* Take full width */
+    height: auto; /* Adjust height */
+  }
+
+  .calendar-container {
+    flex-direction: column; /* Stack calendar and day details */
+    height: auto; /* Adjust height */
+  }
+
+  .calendar-main {
+    width: 100%; /* Take full width */
+  }
+
+  .day-details {
+    width: 100%; /* Take full width */
+    border-left: none; /* Remove left border */
+    border-top: 1px solid var(--border-color); /* Add top border */
+  }
+
+  .view-tabs,
+  .calendar-view-controls {
+    flex-direction: column; /* Stack view controls */
+    align-items: stretch; /* Ensure full width */
+    margin-left: 0; /* Remove left margin */
+    padding-left: 0; /* Remove left padding */
+    border-left: none; /* Remove left border */
+  }
+
+  .calendar-header{
+    flex-direction: column;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .tab-button,
+  .view-button {
+    text-align: center; /* Center the text */
+  }
+
+  .goal-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* Single column grid */
+  }
+
+  /* Adjustments for modals */
+  .modal-content,
+  .manage-modal,
+  .goal-creation-sidebar,
+  .checkup-modal,
+  .quick-form,
+  .reminder-creation-modal {
+    width: 95%; /* Adjust width */
+    max-width: 95%; /* Adjust max-width */
+    left: 50%; /* Center the modal */
+    transform: translateX(-50%); /* Center the modal */
+    top: 10%; /* Adjust top position */
+    height: auto; /* Adjust height */
+    max-height: 80vh; /* Limit max height */
+    overflow-y: auto; /* Enable scrolling */
+  }
+}

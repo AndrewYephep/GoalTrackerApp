@@ -1,0 +1,171 @@
+/* Day View Layout */
+.day-view {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.day-view-section {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Pending Checkups Section */
+.pending-checkups {
+  display: grid;
+  gap: 1rem;
+}
+
+.pending-checkup-card {
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pending-checkup-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Completed Checkups Section */
+.completed-checkups {
+  display: grid;
+  gap: 1rem;
+}
+
+.checkup-card {
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.checkup-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.checkup-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.checkup-status.done {
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.checkup-status.in-progress {
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.checkup-status.not-worked {
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.checkup-notes {
+  color: var(--secondary-text);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Events Section */
+.events-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.event-time {
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+  min-width: 80px;
+}
+
+.event-content {
+  flex: 1;
+}
+
+.event-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.event-description {
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+}
+
+.event-type {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  align-self: flex-start;
+}
+
+.event-type.reminder {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.event-type.holiday {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--secondary-text);
+}
+
+.empty-state-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
